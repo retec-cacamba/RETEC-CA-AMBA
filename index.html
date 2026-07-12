@@ -5,172 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RETEC Caçambas</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#f7f8fa;padding:15px;color:#333}
-.container{max-width:600px;margin:0 auto}
-h1{text-align:center;font-size:24px;margin-bottom:10px}
-.sub{text-align:center;color:#666;margin-bottom:15px}
-.tags{display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
-.tag{background:#e8f5e9;color:#2e7d32;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600}
-.etapa{background:#0d3b1e;color:white;text-align:center;padding:8px 20px;border-radius:20px;display:inline-block;margin:0 auto 20px;display:block;width:fit-content;font-weight:600}
-
-.card{background:white;border:2px solid #e0e0e0;border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;transition:0.2s}
-.card:hover{border-color:#2e7d32}
-.card.selecionado{border-color:#2e7d32;background:#f1f8f4}
-.topo-card{display:flex;justify-content:space-between;align-items:center}
-.titulo-card{font-size:18px;font-weight:700}
-.badge{background:#ff9800;color:white;font-size:11px;padding:3px 8px;border-radius:12px;font-weight:600}
-.badge.padrao{background:#2196f3}
-.preco{font-size:20px;font-weight:700;color:#2e7d32}
-.desc{color:#777;font-size:14px;margin-top:5px}
-
-.input-group{margin-bottom:15px}
-label{font-weight:600;font-size:14px;display:block;margin-bottom:5px}
-input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
-.btn{background:#25d366;color:white;border:none;padding:14px;border-radius:8px;width:100%;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px}
-.btn:disabled{background:#ccc}
-.cupom-box{display:flex;gap:8px}
-#msgCupom{font-size:13px;margin-top:5px;color:#2e7d32;font-weight:600}
-.total-box{text-align:right;margin:15px 0}
-.riscado{text-decoration:line-through;color:#999;font-size:14px}
-.total{font-size:26px;color:#2e7d32;font-weight:800}
+body{font-family:Arial;max-width:600px;margin:0 auto;padding:20px;background:#f5f5f5}
+.caixa{background:white;padding:20px;border-radius:10px;margin-bottom:15px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+h2{text-align:center;margin-bottom:15px}
+button{background:#25d366;color:white;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;width:100%;font-size:16px;font-weight:700}
+input,select{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px;box-sizing:border-box;font-size:15px}
+#qrcode{margin-top:20px;text-align:center}
 .hidden{display:none}
-#qrcode img{max-width:200px;margin:15px auto;display:block}
-#copia{font-size:12px;background:#f5f5f5}
+.preco{font-size:24px;color:#25d366;font-weight:bold;text-align:center}
+.riscado{text-decoration:line-through;color:#999;font-size:16px;text-align:center;display:block}
 </style>
 </head>
 <body>
-<div class="container">
 
-<div id="etapa1">
-  <h1>Reserve sua caçamba em poucos minutos</h1>
-  <p class="sub">Olá, bem vindo a <b>RETEC CAÇAMBAS</b> - Os melhores valores por m³</p>
-  
-  <div class="tags">
-    <div class="tag">🚚 FRETE GRÁTIS</div>
-    <div class="tag">⭐ 7 DIAS ALUGADO</div>
-  </div>
+<div class="caixa" id="etapa1">
+<h2>RETEC Caçambas</h2>
+<p style="text-align:center;color:#666">Aluguel com 7 dias e Frete Grátis</p>
 
-  <div class="etapa">Etapa 1 de 3</div>
+<label>Escolha a Caçamba:</label>
+<select id="produto" onchange="atualizarPreco()">
+  <option value="200">Caçamba 3m³ - R$200,00</option>
+  <option value="269.99">Caçamba 4m³ - R$269,99</option>
+  <option value="319.99">Caçamba 5m³ - R$319,99</option>
+  <option value="409.99">Caçamba 7m³ - R$409,99</option>
+</select>
 
-  <div class="card" onclick="selecionar(200, 'Caçamba 3m³')">
-    <div class="topo-card">
-      <div>
-        <span class="titulo-card">Caçamba 3m³</span>
-        <span class="badge">PROMOCIONAL</span>
-      </div>
-      <div class="preco">R$ 200,00</div>
-    </div>
-    <div class="desc">Ideal para pequenas reformas</div>
-  </div>
+<p>Total: <span class="riscado" id="precoOriginal">R$200.00</span> <span class="preco" id="precoFinal">R$200.00</span></p>
+<p style="text-align:center;font-size:12px;color:#2e7d32">Cupom RETEC50 aplicado automaticamente: -R$100</p>
 
-  <div class="card" onclick="selecionar(269.99, 'Caçamba 4m³')">
-    <div class="topo-card">
-      <div class="titulo-card">Caçamba 4m³</div>
-      <div class="preco">R$ 269,99</div>
-    </div>
-    <div class="desc">Ótima para reformas residenciais</div>
-  </div>
-
-  <div class="card" onclick="selecionar(319.99, 'Caçamba 5m³')">
-    <div class="topo-card">
-      <div>
-        <span class="titulo-card">Caçamba 5m³</span>
-        <span class="badge padrao">PADRÃO</span>
-      </div>
-      <div class="preco">R$ 319,99</div>
-    </div>
-    <div class="desc">Tamanho padrão</div>
-  </div>
-
-  <div class="card" onclick="selecionar(409.99, 'Caçamba 7m³')">
-    <div class="topo-card">
-      <div class="titulo-card">Caçamba 7m³</div>
-      <div class="preco">R$ 409,99</div>
-    </div>
-    <div class="desc">Para obras maiores</div>
-  </div>
-
-  <button class="btn" id="btnContinuar" onclick="irParaEtapa2()" disabled>Continuar</button>
+<button onclick="irParaEtapa2()">Continuar</button>
 </div>
 
-
-<div id="etapa2" class="hidden">
-  <div class="etapa">Etapa 2 de 3</div>
-  <div class="container">
-    <h2>Seus Dados</h2>
-    <div class="input-group">
-      <label>Cupom de Desconto</label>
-      <div class="cupom-box">
-        <input type="text" id="cupom" placeholder="Digite RETEC50" onkeyup="aplicarCupom()">
-      </div>
-      <p id="msgCupom"></p>
-    </div>
-    <div class="total-box">
-      Total: <span class="riscado" id="precoOriginal"></span>
-      <div class="total" id="precoFinal"></div>
-    </div>
-    <div class="input-group">
-      <label>Nome Completo</label>
-      <input type="text" id="nome" placeholder="Digite seu nome">
-    </div>
-    <div class="input-group">
-      <label>CPF</label>
-      <input type="text" id="cpf" placeholder="000.000.000-00">
-    </div>
-    <button class="btn" onclick="gerarPix()">Gerar PIX</button>
-  </div>
+<div class="caixa hidden" id="etapa2">
+<h2>Seus Dados</h2>
+<input type="text" id="nome" placeholder="Nome Completo">
+<input type="text" id="cpf" placeholder="CPF">
+<button onclick="gerarPix()">Gerar PIX</button>
 </div>
 
-
-<div id="etapa3" class="hidden">
-  <div class="etapa">Etapa 3 de 3</div>
-  <h2 style="text-align:center">Pague com PIX</h2>
-  <div id="qrcode"></div>
-  <input type="text" id="copia" readonly>
-  <button class="btn" onclick="copiar()">Copiar Código PIX</button>
+<div class="caixa hidden" id="etapa3">
+<h2>Pague com PIX</h2>
+<div id="qrcode"></div>
+<input type="text" id="copia" readonly>
+<button onclick="copiar()">Copiar Código PIX</button>
 </div>
-
 
 <script>
-let precoSelecionado = 0;
-let nomeProduto = '';
-let temDesconto = false;
+let precoAtual = 200;
 
-function selecionar(preco, nome){
-  precoSelecionado = preco;
-  nomeProduto = nome;
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('selecionado'));
-  event.currentTarget.classList.add('selecionado');
-  document.getElementById('btnContinuar').disabled = false;
+function atualizarPreco(){
+  precoAtual = parseFloat(document.getElementById('produto').value);
+  let precoComDesconto = precoAtual - 100;
+  if(precoComDesconto < 0) precoComDesconto = 0;
+  
+  document.getElementById('precoOriginal').innerText = 'R$' + precoAtual.toFixed(2);
+  document.getElementById('precoFinal').innerText = 'R$' + precoComDesconto.toFixed(2);
 }
 
 function irParaEtapa2(){
   document.getElementById('etapa1').classList.add('hidden');
   document.getElementById('etapa2').classList.remove('hidden');
-  document.getElementById('precoOriginal').innerText = 'R$ ' + precoSelecionado.toFixed(2);
-  document.getElementById('precoFinal').innerText = 'R$ ' + precoSelecionado.toFixed(2);
-}
-
-function aplicarCupom(){
-  let cupom = document.getElementById('cupom').value.toUpperCase();
-  let precoFinal = precoSelecionado;
-  if(cupom === 'RETEC50'){
-    temDesconto = true;
-    precoFinal = precoSelecionado - 100;
-    if(precoFinal < 0) precoFinal = 0;
-    document.getElementById('msgCupom').innerText = 'Cupom aplicado: -R$100,00';
-  } else {
-    temDesconto = false;
-    document.getElementById('msgCupom').innerText = '';
-  }
-  document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2);
 }
 
 async function gerarPix(){
   let nome = document.getElementById('nome').value;
   let cpf = document.getElementById('cpf').value;
-  let valor = temDesconto ? precoSelecionado - 100 : precoSelecionado;
+  let valor = precoAtual - 100;
+  if(valor < 0) valor = 0;
   
   if(!nome || !cpf){ alert('Preencha nome e CPF'); return; }
 
@@ -179,7 +80,7 @@ async function gerarPix(){
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
       valor: valor,
-      descricao: nomeProduto + ' - RETEC',
+      descricao: 'Aluguel Caçamba RETEC',
       nome: nome,
       cpf: cpf
     })
@@ -196,6 +97,8 @@ function copiar(){
   navigator.clipboard.writeText(document.getElementById('copia').value);
   alert('Código PIX copiado!');
 }
+
+atualizarPreco(); // carrega já com desconto
 </script>
 </body>
   </html>
