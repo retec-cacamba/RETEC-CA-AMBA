@@ -1,6 +1,7 @@
 {
   "name": "retec-pix",
   "version": "1.0.0",
+  "description": "Checkout RETEC com PIX PAGCIP",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
