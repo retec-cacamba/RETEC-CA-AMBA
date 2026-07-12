@@ -1,25 +1,69 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RETEC Caçamba</title>
+<title>RETEC CAÇAMBAS - Reserve sua caçamba</title>
 <style>
-body{font-family:Arial;text-align:center;background:#f4f4f4;padding:20px}
-.box{background:white;padding:30px;border-radius:10px;max-width:500px;margin:auto}
-h1{color:#ff6600}
-.btn{display:block;background:#25D366;color:white;padding:15px;margin:10px 0;text-decoration:none;border-radius:5px;font-weight:bold}
-.btn.pix{background:#ff6600}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif}
+body{background:#f5f5f5;padding:20px}
+.container{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:20px}
+h2{text-align:center;margin-bottom:5px}
+.subtitle{text-align:center;color:#666;font-size:14px;margin-bottom:20px}
+.tags{display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.tag{background:#e8f5e9;padding:6px 12px;border-radius:20px;font-size:12px;color:#2e7d32;font-weight:bold}
+.step-badge{background:#1a3a1a;color:#fff;padding:6px 16px;border-radius:20px;text-align:center;width:fit-content;margin:0 auto 20px;font-size:14px}
+.steps{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}
+.step{text-align:center;flex:1}
+.step-icon{width:50px;height:50px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:20px}
+.step.active .step-icon{background:#2e7d32;color:#fff}
+.step.done .step-icon{background:#22c55e;color:#fff}
+.step-line{height:2px;background:#ddd;flex:1;margin:0 5px}
+.card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:15px;margin-bottom:12px;cursor:pointer}
+.card.selected{border-color:#2e7d32;background:#e8f5e9}
+.card-header{display:flex;justify-content:space-between;align-items:center}
+.price{color:#2e7d32;font-weight:bold;font-size:18px}
+.promo{background:#ff9800;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;margin-left:5px}
+.input-group{margin-bottom:15px}
+.input-group label{display:block;margin-bottom:5px;font-size:14px;font-weight:bold}
+.input-group input{width:100%;padding:12px;border:1px solid #ddd;border-radius:6px}
+.search-cep{background:#e8f5e9;padding:15px;border-radius:8px;margin-bottom:15px}
+.search-cep label{color:#2e7d32;font-weight:bold;display:flex;align-items:center;gap:5px}
+.row{display:flex;gap:10px}
+.row .input-group{flex:1}
+.btn{padding:14px;border:none;border-radius:8px;width:100%;font-weight:bold;font-size:16px;cursor:pointer}
+.btn-primary{background:#000;color:#fff}
+.btn-secondary{background:#fff;border:1px solid #ddd;color:#000}
+.btn-green{background:#2e7d32;color:#fff}
+.qr-box{border:1px solid #ddd;padding:20px;border-radius:8px;text-align:center;margin-bottom:20px}
+.qr-box img{width:200px;height:200px}
+.resumo{background:#f9f9f9;padding:15px;border-radius:8px}
+.resumo-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px}
+.resumo-total{font-size:20px;font-weight:bold;color:#000}
+.alert{background:#e8f5e9;padding:12px;border-radius:8px;color:#2e7d32;font-size:14px;margin-bottom:20px;font-weight:bold}
+.hidden{display:none}
 </style>
 </head>
 <body>
-<div class="box">
-<h1>RETEC CAÇAMBA</h1>
-<p>Aluguel de Caçambas em Fazenda Rio Grande</p>
-<p>Disque Entulho: Limpeza Rápida e Segura</p>
-<a href="https://wa.me/5514982294677" class="btn">WhatsApp 1</a>
-<a href="https://wa.me/5585997606858" class="btn">WhatsApp 2</a>
-<a href="#" class="btn pix">Pagar com Pix</a>
+<div class="container">
+
+<!-- ETAPA 1 -->
+<div id="etapa1">
+<h2>Reserve sua caçamba em poucos minutos</h2>
+<p class="subtitle">Olá, bem vindo a *RETEC CAÇAMBAS* - Os melhores valores por m³</p>
+<div class="tags">
+<span class="tag">🚚 FRETE GRÁTIS</span>
+<span class="tag">⭐ 7 DIAS ALUGADO</span>
+<span class="tag">🔒 Pagamento seguro</span>
 </div>
-</body>
-</html>
+<div class="step-badge">Etapa 1 de 3</div>
+<div class="steps">
+<div class="step active"><div class="step-icon">♻️</div>Escolha a caçamba</div>
+<div class="step-line"></div>
+<div class="step"><div class="step-icon">📍</div>Dados de entrega</div>
+<div class="step-line"></div>
+<div class="step"><div class="step-icon">💳</div>Pagamento PIX</div>
+</div>
+
+<div style="background:#1a3a1a;color:#fff;padding:12px;border-radius:8px;margin-bottom:20px">
+⏱️
