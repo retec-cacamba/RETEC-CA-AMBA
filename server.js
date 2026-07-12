@@ -34,12 +34,17 @@ app.post('/gerar-pix', async (req, res) => {
     }
 
     const data = await response.json();
-    console.log("Resposta PIX:", data); // pra ver no log do Railway
+    console.log("Resposta PIX:", data);
     
-    // Nomes corrigidos pra bater com o front
+    // FORÇA O FORMATO DA IMAGEM PRA APARECER
+    let qrBase64 = data.qr_code_base64;
+    if (!qrBase64.startsWith('data:image')) {
+      qrBase64 = "data:image/png;base64," + qrBase64;
+    }
+
     res.json({ 
-      qr_code_image: data.qr_code_base64, // imagem do QR
-      copiaecola: data.pix_code           // código copia e cola
+      qr_code_image: qrBase64,  // Agora vem com data:image/png;base64, na frente
+      copiaecola: data.pix_code          
     });
 
   } catch (error) {
