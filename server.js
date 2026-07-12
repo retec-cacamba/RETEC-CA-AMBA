@@ -1,12 +1,15 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// SERVE OS ARQUIVOS DA PASTA PUBLIC
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ROTA PRA GERAR PIX PELA PIX.DIRECT
 app.post('/gerar-pix', async (req, res) => {
@@ -43,7 +46,7 @@ app.post('/gerar-pix', async (req, res) => {
     }
 
     res.json({ 
-      qr_code_image: qrBase64,  // Agora vem com data:image/png;base64, na frente
+      qr_code_image: qrBase64,  
       copiaecola: data.pix_code          
     });
 
@@ -53,9 +56,9 @@ app.post('/gerar-pix', async (req, res) => {
   }
 });
 
-// ROTA TESTE
-app.get('/', (req, res) => {
-  res.send("Servidor RETEC rodando!");
+// SE NÃO ACHAR ROTA, MANDA O INDEX.HTML
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // INICIAR SERVIDOR
