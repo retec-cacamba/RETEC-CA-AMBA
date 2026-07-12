@@ -96,7 +96,7 @@ body{background:#f0f2f5;padding:16px}
     
     <div class="cupom-box">
       <label>Cupom de Desconto</label>
-      <input class="input" type="text" id="cupom" placeholder="Digite RETEC50" onkeyup="aplicarCupom()">
+      <input class="input" type="text" id="cupom" placeholder="Digite seu cupom" onkeyup="aplicarCupom()">
       <p id="msgCupom"></p>
       <div class="total-box">
         <span class="riscado" id="precoOriginal"></span><br>
@@ -106,11 +106,11 @@ body{background:#f0f2f5;padding:16px}
 
     <input class="input" id="nome" placeholder="Nome Completo *">
     <div class="grid">
-      <input class="input" id="whats" placeholder="(00) 00000-0000 *" oninput="mascaraWhats(this)">
-      <input class="input" id="cpf" placeholder="CPF *">
+      <input class="input" id="whats" placeholder="(00) 00000-0000 *" oninput="mascaraWhats(this)" maxlength="15">
+      <input class="input" id="cpf" placeholder="000.000.000-00 *" oninput="mascaraCPF(this)" maxlength="14">
     </div>
     <input class="input" id="email" placeholder="E-mail *">
-    <input class="input" id="cep" placeholder="00000-000" onblur="buscarCEP()" oninput="mascaraCEP(this)">
+    <input class="input" id="cep" placeholder="00000-000" onblur="buscarCEP()" oninput="mascaraCEP(this)" maxlength="9">
     <div class="grid">
       <input class="input" id="rua" placeholder="Rua *">
       <input class="input" id="num" placeholder="Número *">
@@ -193,6 +193,14 @@ function aplicarCupom(){
   document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2);
 }
 
+function mascaraCPF(input){
+  let v = input.value.replace(/\D/g, '');
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d)/,"$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  input.value = v;
+}
+
 function mascaraWhats(input){
   let v = input.value.replace(/\D/g, '');
   v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
@@ -220,8 +228,8 @@ async function buscarCEP(){
 
 async function gerarPix(){
   const nome = document.getElementById('nome').value;
-  const cpf = document.getElementById('cpf').value;
-  if(!nome || !cpf){ alert('Preencha nome e CPF'); go(2); return; }
+  let cpf = document.getElementById('cpf').value.replace(/\D/g,'');
+  if(!nome || cpf.length !== 11){ alert('Preencha nome e CPF corretamente'); go(2); return; }
   
   const res = await fetch('/gerar-pix', {
     method: 'POST',
