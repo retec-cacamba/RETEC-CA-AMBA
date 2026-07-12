@@ -8,8 +8,8 @@ const PORT = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
-// SERVE OS ARQUIVOS DA PASTA PUBLIC
-app.use(express.static(path.join(__dirname, 'public')));
+// SERVE OS ARQUIVOS DA RAIZ - pq seu index.html tá solto
+app.use(express.static(__dirname));
 
 // ROTA PRA GERAR PIX PELA PIX.DIRECT
 app.post('/gerar-pix', async (req, res) => {
@@ -42,26 +42,4 @@ app.post('/gerar-pix', async (req, res) => {
     // FORÇA O FORMATO DA IMAGEM PRA APARECER
     let qrBase64 = data.qr_code_base64;
     if (!qrBase64.startsWith('data:image')) {
-      qrBase64 = "data:image/png;base64," + qrBase64;
-    }
-
-    res.json({ 
-      qr_code_image: qrBase64,  
-      copiaecola: data.pix_code          
-    });
-
-  } catch (error) {
-    console.log("Erro PIX:", error);
-    res.status(500).json({ erro: error.message });
-  }
-});
-
-// SE NÃO ACHAR ROTA, MANDA O INDEX.HTML
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// INICIAR SERVIDOR
-app.listen(PORT, () => {
-  console.log(`Rodando na porta ${PORT}`);
-});
+      qrBase64 =
