@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RETEC CAÇAMBAS</title>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', 'pxd_04a8c5ea77334289a1d8bd3a18c5734b');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=pxd_04a8c5ea77334289a1d8bd3a18c5734b&ev=PageView&noscript=1"
+/></noscript>
+
 <style>
 body{background:#f5f5f5;padding:15px;font-family:Arial}
 .container{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:20px}
@@ -25,8 +42,9 @@ h2{text-align:center}
 .resumo-row{display:flex;justify-content:space-between;margin:8px 0}
 .risco{text-decoration:line-through;color:#999}
 input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8px;box-sizing:border-box}
-input:focus{border-color:#2e7d32;outline:none}
 .loading{color:#2e7d32;font-size:12px}
+#qr-pix{width:200px;height:200px;margin:0 auto;display:block;border:1px solid #ddd;border-radius:8px}
+.copia-cola{background:#f5f5f5;padding:10px;border-radius:8px;word-break:break-all;font-size:12px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -53,6 +71,7 @@ input:focus{border-color:#2e7d32;outline:none}
 <div class="step-badge">Etapa 2 de 3</div>
 <input placeholder="Nome completo" id="nome">
 <input placeholder="WhatsApp" id="whats" onkeyup="mascaraWhatsapp(this)">
+<input placeholder="CPF" id="cpf" onkeyup="mascaraCPF(this)">
 <input placeholder="CEP" id="cep" onblur="buscarCEP(this.value)" maxlength="9" onkeyup="mascaraCEP(this)">
 <div id="loading-cep" class="loading hidden">Buscando endereço...</div>
 <input placeholder="Rua" id="rua">
@@ -61,16 +80,15 @@ input:focus{border-color:#2e7d32;outline:none}
 <input placeholder="Cidade" id="cidade">
 <input placeholder="Estado" id="estado" maxlength="2">
 <button class="btn btn-secondary" onclick="etapa1()">Voltar</button>
-<button class="btn" onclick="etapa3()">Continuar</button>
+<button class="btn" onclick="etapa3()">Gerar PIX</button>
 </div>
 
 <div id="etapa3" class="hidden">
-<h2>Pagamento PIX</h2>
+<h2>Pague com PIX</h2>
 <div class="step-badge">Etapa 3 de 3</div>
 
 <div class="resumo-row"><b>Caçamba:</b> <span id="res"></span></div>
 <div class="resumo-row"><b>Subtotal:</b> <span id="subtotal"></span></div>
-<div class="resumo-row"><b>Frete:</b> <span style="color:#2e7d32">GRÁTIS</span></div>
 <div class="resumo-row" id="desconto-row" style="display:none"><b>Desconto:</b> <span id="desconto" style="color:#2e7d32"></span></div>
 <hr>
 <div class="resumo-row" style="font-size:20px"><b>Total:</b> <b id="total" style="color:#2e7d32"></b></div>
@@ -85,31 +103,73 @@ input:focus{border-color:#2e7d32;outline:none}
 <small style="color:#666">Cupons: RETEC10 = 10% | RETEC50 = 50%</small>
 </div>
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX-RETEC" style="width:200px;display:block;margin:0 auto">
+<div id="loading-pix" class="loading" style="text-align:center">Gerando PIX...</div>
+<img id="qr-pix" class="hidden">
+<p style="text-align:center;font-size:12px">Escaneie o QR Code ou copie o código</p>
+<div id="pix-copia-cola" class="copia-cola hidden"></div>
+<button class="btn btn-secondary" onclick="copiarPix()">Copiar Código PIX</button>
 <button class="btn btn-secondary" onclick="etapa2()">Voltar</button>
-<button class="btn" onclick="alert('Reserva enviada!')">Finalizar</button>
 </div>
 
 </div>
 <script>
+const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b'; // SUA CHAVE
 let p=[200,269.99,319.99,409.99,509.99,759.99];
 let n=["3m³","4m³","5m³","7m³","10m³","16m³"];
 let s=null;
 let precoFinal=0;
+let pixCopiaCola = '';
 
-function sel(i){s=i;for(let j=0;j<6;j++)document.getElementById('c'+j).classList.remove('selected');document.getElementById('c'+i).classList.add('selected');document.getElementById('btn').disabled=false;}
-function etapa2(){if(s==null)return;document.getElementById('etapa1').classList.add('hidden');document.getElementById('etapa2').classList.remove('hidden')}
+function sel(i){s=i;fbq('track', 'ViewContent', {content_name: n[i], value: p[i], currency: 'BRL'});for(let j=0;j<6;j++)document.getElementById('c'+j).classList.remove('selected');document.getElementById('c'+i).classList.add('selected');document.getElementById('btn').disabled=false;}
+function etapa2(){if(s==null)return;fbq('track', 'InitiateCheckout', {value: p[s], currency: 'BRL'});document.getElementById('etapa1').classList.add('hidden');document.getElementById('etapa2').classList.remove('hidden')}
 function etapa1(){document.getElementById('etapa2').classList.add('hidden');document.getElementById('etapa1').classList.remove('hidden')}
-function etapa3(){
+
+async function etapa3(){
 precoFinal=p[s];
 document.getElementById('res').innerText=n[s];
 document.getElementById('subtotal').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
 document.getElementById('total').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
 document.getElementById('etapa2').classList.add('hidden');
 document.getElementById('etapa3').classList.remove('hidden');
-document.getElementById('msg-cupom').innerHTML='';
-document.getElementById('desconto-row').style.display='none';
-document.getElementById('cupom').value='';
+await gerarPix();
+}
+
+async function gerarPix(){
+document.getElementById('loading-pix').classList.remove('hidden');
+let nome = document.getElementById('nome').value;
+
+try{
+let response = await fetch('https://api.pix.direct/v1/pix/qrcode', {
+method: 'POST',
+headers: {
+'Authorization': 'Bearer ' + GREEN_PIX_TOKEN,
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+valor: precoFinal.toFixed(2),
+descricao: 'Aluguel Caçamba ' + n[s] + ' - RETEC',
+nome: nome
+})
+});
+let data = await response.json();
+
+document.getElementById('loading-pix').classList.add('hidden');
+document.getElementById('qr-pix').src = data.qrcode;
+document.getElementById('qr-pix').classList.remove('hidden');
+pixCopiaCola = data.copiaecola;
+document.getElementById('pix-copia-cola').innerText = pixCopiaCola;
+document.getElementById('pix-copia-cola').classList.remove('hidden');
+
+fbq('track', 'Purchase', {value: precoFinal, currency: 'BRL', content_name: n[s]});
+
+}catch(e){
+document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Tente novamente.';
+}
+}
+
+function copiarPix(){
+navigator.clipboard.writeText(pixCopiaCola);
+alert('Código PIX copiado!');
 }
 
 function aplicarCupom(){
@@ -127,21 +187,13 @@ document.getElementById('desconto-row').style.display='flex';
 document.getElementById('desconto').innerText='- R$ '+desconto.toFixed(2).replace('.',',');
 document.getElementById('subtotal').innerHTML='<span class="risco">R$ '+precoOriginal.toFixed(2).replace('.',',')+'</span>';
 document.getElementById('total').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
-msg.innerHTML='<div class="cupom-sucesso">✅ Cupom '+cupom+' aplicado! Desconto de R$ '+desconto.toFixed(2).replace('.',',')+'</div>';
+msg.innerHTML='<div class="cupom-sucesso">✅ Cupom '+cupom+' aplicado!</div>';
+gerarPix(); // Regera o PIX com novo valor
 }
 
-function mascaraCEP(i){
-let v = i.value.replace(/\D/g,'');
-if(v.length > 5) v = v.replace(/^(\d{5})(\d)/,'$1-$2');
-i.value = v;
-}
-
-function mascaraWhatsapp(i){
-let v = i.value.replace(/\D/g,'');
-v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
-v = v.replace(/(\d)(\d{4})$/,"$1-$2");
-i.value = v;
-}
+function mascaraCEP(i){let v = i.value.replace(/\D/g,'');if(v.length > 5) v = v.replace(/^(\d{5})(\d)/,'$1-$2');i.value = v;}
+function mascaraWhatsapp(i){let v = i.value.replace(/\D/g,'');v = v.replace(/^(\d{2})(\d)/g,"($1) $2");v = v.replace(/(\d)(\d{4})$/,"$1-$2");i.value = v;}
+function mascaraCPF(i){let v = i.value.replace(/\D/g,'');v = v.replace(/(\d{3})(\d)/,"$1.$2");v = v.replace(/(\d{3})(\d)/,"$1.$2");v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");i.value = v;}
 
 function buscarCEP(cep){
 cep = cep.replace(/\D/g, '');
@@ -157,8 +209,6 @@ document.getElementById('bairro').value = data.bairro;
 document.getElementById('cidade').value = data.localidade;
 document.getElementById('estado').value = data.uf;
 document.getElementById('numero').focus();
-}else{
-alert('CEP não encontrado');
 }
 });
 }
