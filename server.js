@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
 const app = express();
 
 app.use(cors());
@@ -11,7 +10,6 @@ const API_TOKEN = "pxd_04a8c5ea77334289a1d8bd3a18c5734b";
 
 app.post('/gerar-pix', async (req, res) => {
   const { valor, descricao, nome, cpf } = req.body;
-  console.log("1. DADOS RECEBIDOS:", {valor, descricao, nome, cpf});
 
   try {
     const body = {
@@ -21,7 +19,6 @@ app.post('/gerar-pix', async (req, res) => {
       customer: { name: nome, document: cpf },
       expiresIn: 300
     }
-    console.log("2. ENVIANDO PARA PAGCIP:", body);
 
     const response = await fetch('https://api.pagcip.com.br/v1/transactions', {
       method: 'POST',
@@ -33,7 +30,6 @@ app.post('/gerar-pix', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log("3. RESPOSTA COMPLETA PAGCIP:", JSON.stringify(data));
 
     if(!response.ok){
       return res.status(400).json({ error: `PAGCIP: ${data.message || JSON.stringify(data)}` });
@@ -45,8 +41,7 @@ app.post('/gerar-pix', async (req, res) => {
     });
 
   } catch (error) {
-    console.log("4. ERRO CATCH:", error);
-    res.status(500).json({ error: "Erro interno no servidor" });
+    res.status(500).json({ error: error.message });
   }
 });
 
