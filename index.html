@@ -42,13 +42,14 @@ body{background:#f0f2f5;padding:16px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .hidden{display:none}
 .qr{text-align:center;padding:20px}
-.qr img{width:200px}
+.qr img{width:220px}
 .cupom-box{border:1px dashed #0d47a1;background:#e3f2fd;padding:12px;border-radius:8px;margin-bottom:15px}
 .cupom-box label{font-size:12px;font-weight:700;color:#0d47a1}
 #msgCupom{font-size:12px;margin-top:5px;font-weight:600}
 .total-box{text-align:right;margin:10px 0 15px 0}
 .riscado{text-decoration:line-through;color:#999;font-size:14px;display:none}
 .total{font-size:22px;color:#0d47a1;font-weight:800}
+.loading{text-align:center;color:#0d47a1;font-size:14px}
 </style>
 </head>
 <body>
@@ -135,9 +136,9 @@ body{background:#f0f2f5;padding:16px}
   </div>
   <div class="box">
     <h2>💳 Pagamento via PIX</h2>
-    <p style="background:#e8f5e9;padding:10px;border-radius:6px;font-size:13px;margin-bottom:15px">Finalize em 5 minutos para garantir sua reserva.</p>
+    <p style="background:#e8f5e9;padding:10px;border-radius:6px;font-size:13px;margin-bottom:15px">Finalize em 5 minutos para garantir sua reserva. Valor: <b id="valorPix"></b></p>
     
-    <div class="qr" id="qrbox"></div>
+    <div class="qr" id="qrbox"><p class="loading">Gerando PIX...</p></div>
     <input class="input" id="copia" readonly>
     <button class="btn" onclick="copy()">Copiar Código PIX</button>
     <p style="text-align:center;margin-top:15px"><b>Total: <span id="total"></span></b></p>
@@ -146,7 +147,7 @@ body{background:#f0f2f5;padding:16px}
 </div>
 
 <script>
-let precoBase = 319.99, precoFinal = 319.99, produto = 'Caçamba 5m³'; // 5m³ JÁ PADRÃO
+let precoBase = 319.99, precoFinal = 319.99, produto = 'Caçamba 5m³';
 
 window.onload = function(){
   document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2);
@@ -172,6 +173,7 @@ function go(etapa){
   }
   if(etapa === 3){
     document.getElementById('total').innerText = 'R$ ' + precoFinal.toFixed(2);
+    document.getElementById('valorPix').innerText = 'R$ ' + precoFinal.toFixed(2);
     gerarPix();
   }
 }
@@ -181,11 +183,11 @@ function aplicarCupom(){
   let desconto = 0;
   
   if(cupom === 'RETEC10'){
-    desconto = precoBase * 0.10; // 10%
+    desconto = precoBase * 0.10;
     document.getElementById('msgCupom').innerText = 'Cupom aplicado: -10%';
     document.getElementById('msgCupom').style.color = '#2e7d32';
   } else if(cupom === 'RETEC50'){
-    desconto = precoBase * 0.50; // 50%
+    desconto = precoBase * 0.50;
     document.getElementById('msgCupom').innerText = 'Cupom aplicado: -50%';
     document.getElementById('msgCupom').style.color = '#2e7d32';
   } else if(cupom !== ''){
@@ -247,17 +249,22 @@ async function gerarPix(){
   let cpf = document.getElementById('cpf').value.replace(/\D/g,'');
   if(!nome || cpf.length !== 11){ alert('Preencha nome e CPF corretamente'); go(2); return; }
   
-  const res = await fetch('/gerar-pix', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({valor: precoFinal, descricao: produto, nome: nome, cpf: cpf})
-  });
-  const data = await res.json();
-  document.getElementById('qrbox').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${data.copiaecola}">`;
-  document.getElementById('copia').value = data.copiaecola;
+  try{
+    const res = await fetch('/gerar-pix', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({valor: precoFinal, descricao: produto, nome: nome, cpf: cpf})
+    });
+    const data = await res.json();
+    
+    document.getElementById('qrbox').innerHTML = `<img src="data:image/png;base64,${data.qrCodeBase64}">`;
+    document.getElementById('copia').value = data.copiaecola;
+  }catch(e){
+    document.getElementById('qrbox').innerHTML = `<p style="color:red">Erro ao gerar PIX. Tente novamente.</p>`;
+  }
 }
 
 function copy(){navigator.clipboard.writeText(document.getElementById('copia').value);alert('Código copiado!')}
 </script>
 </body>
-</html>
+                                                                                                                                                                   </html>
