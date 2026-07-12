@@ -16,7 +16,14 @@ h2{text-align:center}
 .promo{background:#ff9800;color:#fff;font-size:10px;padding:3px 8px;border-radius:10px}
 .btn{padding:14px;border:none;border-radius:8px;width:100%;background:#2e7d32;color:#fff;font-weight:bold;font-size:16px;margin-top:15px}
 .btn:disabled{background:#ccc}
+.btn-secondary{background:#fff;border:2px solid #2e7d32;color:#2e7d32}
 .hidden{display:none}
+.cupom-box{display:flex;gap:10px;margin:15px 0}
+.cupom-box input{flex:1;padding:12px;border:2px solid #ddd;border-radius:8px}
+.cupom-sucesso{background:#e8f5e9;color:#2e7d32;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold}
+.cupom-erro{background:#ffebee;color:#c62828;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold}
+.resumo-row{display:flex;justify-content:space-between;margin:8px 0}
+.risco{text-decoration:line-through;color:#999}
 </style>
 </head>
 <body>
@@ -25,87 +32,8 @@ h2{text-align:center}
 <div id="etapa1">
 <h2>Reserve sua caçamba em poucos minutos</h2>
 <p style="text-align:center;color:#666">Olá, bem vindo a *RETEC CAÇAMBAS* - Os melhores valores por m³</p>
-<div style="text-align:center">
-<span class="tag">🚚 FRETE GRÁTIS</span>
-<span class="tag">⭐ 7 DIAS ALUGADO</span>
-<span class="tag">🔒 Pagamento seguro</span>
-</div>
+<div style="text-align:center"><span class="tag">🚚 FRETE GRÁTIS</span><span class="tag">⭐ 7 DIAS ALUGADO</span></div>
 <div class="step-badge">Etapa 1 de 3</div>
+<div style="background:#1a3a1a;color:#fff;padding:12px;border-radius:8px;margin:15px 0"><b>⏱️ Entrega EXPRESSA em até 2 horas!</b></div>
 
-<div style="background:#1a3a1a;color:#fff;padding:12px;border-radius:8px;margin:15px 0">
-<b>⏱️ Entrega EXPRESSA em até 2 horas!</b><br>
-<small>Período de 7 dias alugado. Encheu antes? Retiramos no mesmo dia!</small>
-</div>
-
-<div class="card" onclick="sel(0)" id="c0">
-<b>Caçamba 3m³ <span class="promo">PROMOCIONAL</span></b><span class="price">R$ 200,00</span>
-<p style="font-size:13px;color:#666">Ideal para pequenas reformas e limpezas residenciais</p>
-<small>📐 2.0m x 1.5m x 1.0m</small>
-</div>
-
-<div class="card" onclick="sel(1)" id="c1">
-<b>Caçamba 4m³</b><span class="price">R$ 269,99</span>
-<p style="font-size:13px;color:#666">Ótima para reformas residenciais e descartes moderados</p>
-<small>📐 2.2m x 1.6m x 1.2m</small>
-</div>
-
-<div class="card" onclick="sel(2)" id="c2">
-<b>Caçamba 5m³ <span class="promo" style="background:#2e7d32">PADRÃO</span></b><span class="price">R$ 319,99</span>
-<p style="font-size:13px;color:#666">Tamanho padrão - Perfeita para reformas médias</p>
-<small>📐 2.5m x 1.7m x 1.3m</small>
-</div>
-
-<div class="card" onclick="sel(3)" id="c3">
-<b>Caçamba 7m³</b><span class="price">R$ 409,99</span>
-<p style="font-size:13px;color:#666">Recomendada para grandes obras e demolições</p>
-<small>📐 3.0m x 1.8m x 1.4m</small>
-</div>
-
-<div class="card" onclick="sel(4)" id="c4">
-<b>Caçamba 10m³</b><span class="price">R$ 509,99</span>
-<p style="font-size:13px;color:#666">Máxima capacidade para obras de grande porte</p>
-<small>📐 3.5m x 2.0m x 1.5m</small>
-</div>
-
-<div class="card" onclick="sel(5)" id="c5">
-<b>Caçamba 16m³</b><span class="price">R$ 759,99</span>
-<p style="font-size:13px;color:#666">Ideal para grandes obras e demolições</p>
-<small>📐 4.0m x 2.2m x 1.7m</small>
-</div>
-
-<button class="btn" onclick="etapa2()" id="btn" disabled>Reservar Caçamba</button>
-</div>
-
-<div id="etapa2" class="hidden">
-<h2>Dados de Entrega</h2>
-<div class="step-badge">Etapa 2 de 3</div>
-<input placeholder="Nome completo" id="nome" style="width:100%;padding:10px;margin:5px 0">
-<input placeholder="WhatsApp" id="whats" style="width:100%;padding:10px;margin:5px 0">
-<input placeholder="CEP" id="cep" style="width:100%;padding:10px;margin:5px 0">
-<input placeholder="Rua" id="rua" style="width:100%;padding:10px;margin:5px 0">
-<button class="btn" onclick="etapa1()">Voltar</button>
-<button class="btn" onclick="etapa3()">Continuar</button>
-</div>
-
-<div id="etapa3" class="hidden">
-<h2>Pagamento PIX</h2>
-<div class="step-badge">Etapa 3 de 3</div>
-<p><b>Caçamba:</b> <span id="res"></span></p>
-<p><b>Total:</b> <span id="total"></span></p>
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX-RETEC" style="width:200px">
-<button class="btn" onclick="etapa2()">Voltar</button>
-<button class="btn" onclick="alert('Reserva enviada!')">Finalizar</button>
-</div>
-
-</div>
-<script>
-let p=[200,269.99,319.99,409.99,509.99,759.99];
-let n=["3m³","4m³","5m³","7m³","10m³","16m³"];
-let s=null;
-function sel(i){s=i;for(let j=0;j<6;j++)document.getElementById('c'+j).classList.remove('selected');document.getElementById('c'+i).classList.add('selected');document.getElementById('btn').disabled=false;}
-function etapa2(){if(s==null)return;document.getElementById('etapa1').classList.add('hidden');document.getElementById('etapa2').classList.remove('hidden')}
-function etapa1(){document.getElementById('etapa2').classList.add('hidden');document.getElementById('etapa1').classList.remove('hidden')}
-function etapa3(){document.getElementById('res').innerText=n[s];document.getElementById('total').innerText='R$ '+p[s].toFixed(2).replace('.',',');document.getElementById('etapa2').classList.add('hidden');document.getElementById('etapa3').classList.remove('hidden')}
-</script>
-</body>
-  </html>
+<div class="card" onclick="sel(0)" id="c0"><b>Caçamba 3m³ <span class="promo">PROMOCIONAL</span></b>
