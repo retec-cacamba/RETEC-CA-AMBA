@@ -106,11 +106,11 @@ body{background:#f0f2f5;padding:16px}
 
     <input class="input" id="nome" placeholder="Nome Completo *">
     <div class="grid">
-      <input class="input" id="whats" placeholder="WhatsApp *">
+      <input class="input" id="whats" placeholder="(00) 00000-0000 *" oninput="mascaraWhats(this)">
       <input class="input" id="cpf" placeholder="CPF *">
     </div>
     <input class="input" id="email" placeholder="E-mail *">
-    <input class="input" id="cep" placeholder="CEP" onblur="buscarCEP()">
+    <input class="input" id="cep" placeholder="00000-000" onblur="buscarCEP()" oninput="mascaraCEP(this)">
     <div class="grid">
       <input class="input" id="rua" placeholder="Rua *">
       <input class="input" id="num" placeholder="Número *">
@@ -149,7 +149,7 @@ let precoBase = 0, precoFinal = 0, produto = '';
 
 function pick(el, p, n){
   precoBase = p;
-  precoFinal = p; // SEM DESCONTO NO INÍCIO
+  precoFinal = p;
   produto = n;
   document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
@@ -193,6 +193,19 @@ function aplicarCupom(){
   document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2);
 }
 
+function mascaraWhats(input){
+  let v = input.value.replace(/\D/g, '');
+  v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+  v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+  input.value = v;
+}
+
+function mascaraCEP(input){
+  let v = input.value.replace(/\D/g, '');
+  v = v.replace(/^(\d{5})(\d)/,"$1-$2");
+  input.value = v;
+}
+
 async function buscarCEP(){
   let cep = document.getElementById('cep').value.replace(/\D/g, '');
   if(cep.length !== 8) return;
@@ -223,4 +236,4 @@ async function gerarPix(){
 function copy(){navigator.clipboard.writeText(document.getElementById('copia').value);alert('Código copiado!')}
 </script>
 </body>
-  </html>
+</html>
