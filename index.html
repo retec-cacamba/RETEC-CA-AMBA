@@ -22,18 +22,19 @@ src="https://www.facebook.com/tr?id=pxd_04a8c5ea77334289a1d8bd3a18c5734b&ev=Page
 /></noscript>
 
 <style>
-body{background:#f5f5f5;padding:15px;font-family:Arial}
+body{background:#f5f5f5;padding:15px;font-family:Arial;margin:0}
 .container{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:20px}
 h2{text-align:center}
 .tag{display:inline-block;background:#e8f5e9;color:#2e7d32;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:bold;margin:5px}
 .step-badge{background:#1a3a1a;color:#fff;padding:8px 16px;border-radius:20px;text-align:center;width:fit-content;margin:15px auto;font-weight:bold}
-.card{border:2px solid #ddd;border-radius:10px;padding:15px;margin-bottom:12px;cursor:pointer}
+.card{border:2px solid #ddd;border-radius:10px;padding:15px;margin-bottom:12px;cursor:pointer;transition:0.2s}
+.card:hover{border-color:#2e7d32}
 .card.selected{border-color:#2e7d32;background:#e8f5e9}
 .price{color:#2e7d32;font-weight:bold;font-size:18px;float:right}
 .price-risco{color:#999;text-decoration:line-through;font-size:14px;margin-right:5px}
 .promo{background:#ff9800;color:#fff;font-size:10px;padding:3px 8px;border-radius:10px}
-.btn{padding:14px;border:none;border-radius:8px;width:100%;background:#2e7d32;color:#fff;font-weight:bold;font-size:16px;margin-top:15px}
-.btn:disabled{background:#ccc}
+.btn{padding:14px;border:none;border-radius:8px;width:100%;background:#2e7d32;color:#fff;font-weight:bold;font-size:16px;margin-top:15px;cursor:pointer}
+.btn:disabled{background:#ccc;cursor:not-allowed}
 .btn-secondary{background:#fff;border:2px solid #2e7d32;color:#2e7d32}
 .hidden{display:none}
 .cupom-box{display:flex;gap:10px;margin:15px 0}
@@ -116,7 +117,7 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 
 </div>
 <script>
-const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b'; // SUA CHAVE API
+const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b';
 let p=[200,269.99,319.99,409.99,509.99,759.99];
 let n=["3m³","4m³","5m³","7m³","10m³","16m³"];
 let s=null;
@@ -134,13 +135,14 @@ document.getElementById('p'+i).innerHTML = '<span class="price-risco">R$ '+p[i].
 }else{
 document.getElementById('p'+i).innerText = 'R$ '+p[i].toFixed(2).replace('.',',');
 }
-} // <-- FALTAVA ESSA CHAVE AQUI
+} // FECHEI AQUI
+}
 
 function sel(i){
 s=i;
 precoOriginal = p[i];
 precoFinal = p[i] * (1 - descontoPercent);
-fbq('track', 'ViewContent', {content_name: n[i], value: precoFinal, currency: 'BRL'});
+try{fbq('track', 'ViewContent', {content_name: n[i], value: precoFinal, currency: 'BRL'});}catch(e){}
 for(let j=0;j<6;j++)document.getElementById('c'+j).classList.remove('selected');
 document.getElementById('c'+i).classList.add('selected');
 document.getElementById('btn').disabled=false;
@@ -148,7 +150,7 @@ document.getElementById('btn').disabled=false;
 
 function etapa2(){
 if(s==null)return;
-fbq('track', 'InitiateCheckout', {value: precoFinal, currency: 'BRL'});
+try{fbq('track', 'InitiateCheckout', {value: precoFinal, currency: 'BRL'});}catch(e){}
 document.getElementById('etapa1').classList.add('hidden');
 document.getElementById('etapa2').classList.remove('hidden');
 }
@@ -193,7 +195,7 @@ document.getElementById('loading-pix').classList.remove('hidden');
 let nome = document.getElementById('nome').value;
 
 try{
-let response = await fetch('https://api.allorigins.win/raw?url=https://api.pix.direct/v1/pix/qrcode', {
+let response = await fetch('https://api.pix.direct/v1/pix/qrcode', {
 method: 'POST',
 headers: {
 'Authorization': 'Bearer ' + GREEN_PIX_TOKEN,
@@ -214,11 +216,11 @@ document.getElementById('qr-pix').classList.remove('hidden');
 pixCopiaCola = data.copiaecola;
 document.getElementById('pix-copia-cola').innerText = pixCopiaCola;
 document.getElementById('pix-copia-cola').classList.remove('hidden');
-fbq('track', 'Purchase', {value: precoFinal, currency: 'BRL', content_name: n[s]});
+try{fbq('track', 'Purchase', {value: precoFinal, currency: 'BRL', content_name: n[s]});}catch(e){}
 
 }catch(e){
 console.log(e)
-document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Tente novamente.';
+document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Recarregue a página.';
 }
 }
 
@@ -246,4 +248,4 @@ document.getElementById('numero').focus();
 }
 </script>
 </body>
-                                                                                                                                                                 </html>
+  </html>
