@@ -117,7 +117,6 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 
 </div>
 <script>
-const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b';
 let p=[200,269.99,319.99,409.99,509.99,759.99];
 let n=["3m³","4m³","5m³","7m³","10m³","16m³"];
 let s=null;
@@ -135,7 +134,6 @@ document.getElementById('p'+i).innerHTML = '<span class="price-risco">R$ '+p[i].
 }else{
 document.getElementById('p'+i).innerText = 'R$ '+p[i].toFixed(2).replace('.',',');
 }
-} // FECHEI AQUI
 }
 
 function sel(i){
@@ -195,10 +193,9 @@ document.getElementById('loading-pix').classList.remove('hidden');
 let nome = document.getElementById('nome').value;
 
 try{
-let response = await fetch('https://api.pix.direct/v1/pix/qrcode', {
+let response = await fetch('/gerar-pix', { // <-- CHAMANDO NOSSO SERVIDOR AGORA
 method: 'POST',
 headers: {
-'Authorization': 'Bearer ' + GREEN_PIX_TOKEN,
 'Content-Type': 'application/json'
 },
 body: JSON.stringify({
@@ -220,7 +217,7 @@ try{fbq('track', 'Purchase', {value: precoFinal, currency: 'BRL', content_name: 
 
 }catch(e){
 console.log(e)
-document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Recarregue a página.';
+document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Tente novamente.';
 }
 }
 
