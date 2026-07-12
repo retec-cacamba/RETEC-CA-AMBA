@@ -30,6 +30,7 @@ h2{text-align:center}
 .card{border:2px solid #ddd;border-radius:10px;padding:15px;margin-bottom:12px;cursor:pointer}
 .card.selected{border-color:#2e7d32;background:#e8f5e9}
 .price{color:#2e7d32;font-weight:bold;font-size:18px;float:right}
+.price-risco{color:#999;text-decoration:line-through;font-size:14px;margin-right:5px}
 .promo{background:#ff9800;color:#fff;font-size:10px;padding:3px 8px;border-radius:10px}
 .btn{padding:14px;border:none;border-radius:8px;width:100%;background:#2e7d32;color:#fff;font-weight:bold;font-size:16px;margin-top:15px}
 .btn:disabled{background:#ccc}
@@ -42,9 +43,10 @@ h2{text-align:center}
 .resumo-row{display:flex;justify-content:space-between;margin:8px 0}
 .risco{text-decoration:line-through;color:#999}
 input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8px;box-sizing:border-box}
-.loading{color:#2e7d32;font-size:12px}
+.loading{color:#2e7d32;font-size:12px;text-align:center}
 #qr-pix{width:200px;height:200px;margin:0 auto;display:block;border:1px solid #ddd;border-radius:8px}
 .copia-cola{background:#f5f5f5;padding:10px;border-radius:8px;word-break:break-all;font-size:12px;margin-top:10px}
+.cupom-aplicado-tag{background:#2e7d32;color:#fff;padding:4px 10px;border-radius:15px;font-size:11px;margin-left:10px}
 </style>
 </head>
 <body>
@@ -55,20 +57,29 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 <p style="text-align:center;color:#666">Olá, bem vindo a *RETEC CAÇAMBAS* - Os melhores valores por m³</p>
 <div style="text-align:center"><span class="tag">🚚 FRETE GRÁTIS</span><span class="tag">⭐ 7 DIAS ALUGADO</span></div>
 <div class="step-badge">Etapa 1 de 3</div>
-<div style="background:#1a3a1a;color:#fff;padding:12px;border-radius:8px;margin:15px 0"><b>⏱️ Entrega EXPRESSA em até 2 horas!</b></div>
 
-<div class="card" onclick="sel(0)" id="c0"><b>Caçamba 3m³ <span class="promo">PROMOCIONAL</span></b><span class="price">R$ 200,00</span><p style="font-size:13px;color:#666">Ideal para pequenas reformas</p></div>
-<div class="card" onclick="sel(1)" id="c1"><b>Caçamba 4m³</b><span class="price">R$ 269,99</span><p style="font-size:13px;color:#666">Ótima para reformas residenciais</p></div>
-<div class="card" onclick="sel(2)" id="c2"><b>Caçamba 5m³ <span class="promo" style="background:#2e7d32">PADRÃO</span></b><span class="price">R$ 319,99</span><p style="font-size:13px;color:#666">Tamanho padrão</p></div>
-<div class="card" onclick="sel(3)" id="c3"><b>Caçamba 7m³</b><span class="price">R$ 409,99</span><p style="font-size:13px;color:#666">Recomendada para grandes obras</p></div>
-<div class="card" onclick="sel(4)" id="c4"><b>Caçamba 10m³</b><span class="price">R$ 509,99</span><p style="font-size:13px;color:#666">Máxima capacidade</p></div>
-<div class="card" onclick="sel(5)" id="c5"><b>Caçamba 16m³</b><span class="price">R$ 759,99</span><p style="font-size:13px;color:#666">Ideal para grandes obras</p></div>
+<div style="border:2px dashed #2e7d32;padding:15px;border-radius:8px;margin:15px 0;background:#f1f8e9">
+<b>🎟️ Tem cupom de desconto?</b>
+<div class="cupom-box">
+<input type="text" id="cupom-etapa1" placeholder="Digite o cupom">
+<button class="btn-secondary" style="width:120px" onclick="aplicarCupom('etapa1')">Aplicar</button>
+</div>
+<div id="msg-cupom-etapa1"></div>
+</div>
+
+<div class="card" onclick="sel(0)" id="c0"><b>Caçamba 3m³ <span class="promo">PROMOCIONAL</span></b><span class="price" id="p0">R$ 200,00</span><p style="font-size:13px;color:#666">Ideal para pequenas reformas</p></div>
+<div class="card" onclick="sel(1)" id="c1"><b>Caçamba 4m³</b><span class="price" id="p1">R$ 269,99</span><p style="font-size:13px;color:#666">Ótima para reformas residenciais</p></div>
+<div class="card" onclick="sel(2)" id="c2"><b>Caçamba 5m³ <span class="promo" style="background:#2e7d32">PADRÃO</span></b><span class="price" id="p2">R$ 319,99</span><p style="font-size:13px;color:#666">Tamanho padrão</p></div>
+<div class="card" onclick="sel(3)" id="c3"><b>Caçamba 7m³</b><span class="price" id="p3">R$ 409,99</span><p style="font-size:13px;color:#666">Recomendada para grandes obras</p></div>
+<div class="card" onclick="sel(4)" id="c4"><b>Caçamba 10m³</b><span class="price" id="p4">R$ 509,99</span><p style="font-size:13px;color:#666">Máxima capacidade</p></div>
+<div class="card" onclick="sel(5)" id="c5"><b>Caçamba 16m³</b><span class="price" id="p5">R$ 759,99</span><p style="font-size:13px;color:#666">Ideal para grandes obras</p></div>
 <button class="btn" onclick="etapa2()" id="btn" disabled>Reservar Caçamba</button>
 </div>
 
 <div id="etapa2" class="hidden">
 <h2>Dados de Entrega</h2>
 <div class="step-badge">Etapa 2 de 3</div>
+<div id="cupom-info-etapa2" class="hidden" style="background:#e8f5e9;padding:10px;border-radius:8px;margin-bottom:10px"></div>
 <input placeholder="Nome completo" id="nome">
 <input placeholder="WhatsApp" id="whats" onkeyup="mascaraWhatsapp(this)">
 <input placeholder="CPF" id="cpf" onkeyup="mascaraCPF(this)">
@@ -96,14 +107,13 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 <div style="border:2px solid #ddd;padding:15px;border-radius:8px;margin:15px 0">
 <b>Tem cupom de desconto?</b>
 <div class="cupom-box">
-<input type="text" id="cupom" placeholder="Digite o cupom" style="margin:0">
-<button class="btn-secondary" style="width:120px;margin:0" onclick="aplicarCupom()">Aplicar</button>
+<input type="text" id="cupom-etapa3" placeholder="Digite o cupom" style="margin:0">
+<button class="btn-secondary" style="width:120px;margin:0" onclick="aplicarCupom('etapa3')">Aplicar</button>
 </div>
-<div id="msg-cupom"></div>
-<small style="color:#666">Cupons: RETEC10 = 10% | RETEC50 = 50%</small>
+<div id="msg-cupom-etapa3"></div>
 </div>
 
-<div id="loading-pix" class="loading" style="text-align:center">Gerando PIX...</div>
+<div id="loading-pix" class="loading">Gerando PIX...</div>
 <img id="qr-pix" class="hidden">
 <p style="text-align:center;font-size:12px">Escaneie o QR Code ou copie o código</p>
 <div id="pix-copia-cola" class="copia-cola hidden"></div>
@@ -113,25 +123,84 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 
 </div>
 <script>
-const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b'; // SUA CHAVE
+const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b';
 let p=[200,269.99,319.99,409.99,509.99,759.99];
 let n=["3m³","4m³","5m³","7m³","10m³","16m³"];
 let s=null;
 let precoFinal=0;
+let precoOriginal=0;
 let pixCopiaCola = '';
+let cupomAplicado = '';
+let descontoPercent = 0;
 
-function sel(i){s=i;fbq('track', 'ViewContent', {content_name: n[i], value: p[i], currency: 'BRL'});for(let j=0;j<6;j++)document.getElementById('c'+j).classList.remove('selected');document.getElementById('c'+i).classList.add('selected');document.getElementById('btn').disabled=false;}
-function etapa2(){if(s==null)return;fbq('track', 'InitiateCheckout', {value: p[s], currency: 'BRL'});document.getElementById('etapa1').classList.add('hidden');document.getElementById('etapa2').classList.remove('hidden')}
-function etapa1(){document.getElementById('etapa2').classList.add('hidden');document.getElementById('etapa1').classList.remove('hidden')}
+function atualizarPrecos(){
+for(let i=0; i<6; i++){
+let precoComDesconto = p[i] * (1 - descontoPercent);
+if(descontoPercent > 0){
+document.getElementById('p'+i).innerHTML = '<span class="price-risco">R$ '+p[i].toFixed(2).replace('.',',')+'</span> R$ '+precoComDesconto.toFixed(2).replace('.',',');
+}else{
+document.getElementById('p'+i).innerText = 'R$ '+p[i].toFixed(2).replace('.',',');
+}
+}
+}
+
+function sel(i){
+s=i;
+precoOriginal = p[i];
+precoFinal = p[i] * (1 - descontoPercent);
+fbq('track', 'ViewContent', {content_name: n[i], value: precoFinal, currency: 'BRL'});
+for(let j=0;j<6;j++)document.getElementById('c'+j).classList.remove('selected');
+document.getElementById('c'+i).classList.add('selected');
+document.getElementById('btn').disabled=false;
+}
+
+function etapa2(){
+if(s==null)return;
+fbq('track', 'InitiateCheckout', {value: precoFinal, currency: 'BRL'});
+document.getElementById('etapa1').classList.add('hidden');
+document.getElementById('etapa2').classList.remove('hidden');
+if(cupomAplicado!= ''){
+document.getElementById('cupom-info-etapa2').innerHTML = '✅ Cupom aplicado <span class="cupom-aplicado-tag">-'+(descontoPercent*100)+'%</span>';
+document.getElementById('cupom-info-etapa2').classList.remove('hidden');
+}
+}
+
+function etapa1(){
+document.getElementById('etapa2').classList.add('hidden');
+document.getElementById('etapa1').classList.remove('hidden');
+}
 
 async function etapa3(){
-precoFinal=p[s];
 document.getElementById('res').innerText=n[s];
-document.getElementById('subtotal').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
+document.getElementById('subtotal').innerText='R$ '+precoOriginal.toFixed(2).replace('.',',');
 document.getElementById('total').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
+if(descontoPercent > 0){
+document.getElementById('desconto-row').style.display='flex';
+document.getElementById('desconto').innerText='- R$ '+(precoOriginal - precoFinal).toFixed(2).replace('.',',');
+}
 document.getElementById('etapa2').classList.add('hidden');
 document.getElementById('etapa3').classList.remove('hidden');
+document.getElementById('cupom-etapa3').value = cupomAplicado;
 await gerarPix();
+}
+
+function aplicarCupom(etapa){
+let cupomInput = etapa == 'etapa1'? 'cupom-etapa1' : 'cupom-etapa3';
+let msgInput = etapa == 'etapa1'? 'msg-cupom-etapa1' : 'msg-cupom-etapa3';
+let cupom = document.getElementById(cupomInput).value.toUpperCase();
+let msg = document.getElementById(msgInput);
+
+if(cupom == 'RETEC10'){descontoPercent = 0.10; cupomAplicado = cupom;}
+else if(cupom == 'RETEC50'){descontoPercent = 0.50; cupomAplicado = cupom;}
+else{msg.innerHTML='<div class="cupom-erro">❌ Cupom inválido</div>'; return;}
+
+msg.innerHTML='<div class="cupom-sucesso">✅ Cupom aplicado! -'+(descontoPercent*100)+'%</div>';
+document.getElementById('cupom-etapa1').value = cupomAplicado;
+document.getElementById('cupom-etapa3').value = cupomAplicado;
+atualizarPrecos();
+if(s!= null){
+precoFinal = precoOriginal * (1 - descontoPercent);
+}
 }
 
 async function gerarPix(){
@@ -139,7 +208,7 @@ document.getElementById('loading-pix').classList.remove('hidden');
 let nome = document.getElementById('nome').value;
 
 try{
-let response = await fetch('https://api.pix.direct/v1/pix/qrcode', {
+let response = await fetch('https://api.allorigins.win/raw?url=https://api.pix.direct/v1/pix/qrcode', {
 method: 'POST',
 headers: {
 'Authorization': 'Bearer ' + GREEN_PIX_TOKEN,
@@ -148,7 +217,8 @@ headers: {
 body: JSON.stringify({
 valor: precoFinal.toFixed(2),
 descricao: 'Aluguel Caçamba ' + n[s] + ' - RETEC',
-nome: nome
+nome: nome,
+cpf: document.getElementById('cpf').value.replace(/\D/g,'')
 })
 });
 let data = await response.json();
@@ -159,7 +229,6 @@ document.getElementById('qr-pix').classList.remove('hidden');
 pixCopiaCola = data.copiaecola;
 document.getElementById('pix-copia-cola').innerText = pixCopiaCola;
 document.getElementById('pix-copia-cola').classList.remove('hidden');
-
 fbq('track', 'Purchase', {value: precoFinal, currency: 'BRL', content_name: n[s]});
 
 }catch(e){
@@ -167,30 +236,7 @@ document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Tente nov
 }
 }
 
-function copiarPix(){
-navigator.clipboard.writeText(pixCopiaCola);
-alert('Código PIX copiado!');
-}
-
-function aplicarCupom(){
-let cupom = document.getElementById('cupom').value.toUpperCase();
-let msg = document.getElementById('msg-cupom');
-let precoOriginal = p[s];
-let desconto = 0;
-
-if(cupom == 'RETEC10'){desconto = precoOriginal * 0.10;}
-else if(cupom == 'RETEC50'){desconto = precoOriginal * 0.50;}
-else{msg.innerHTML='<div class="cupom-erro">❌ Cupom inválido</div>';return;}
-
-precoFinal = precoOriginal - desconto;
-document.getElementById('desconto-row').style.display='flex';
-document.getElementById('desconto').innerText='- R$ '+desconto.toFixed(2).replace('.',',');
-document.getElementById('subtotal').innerHTML='<span class="risco">R$ '+precoOriginal.toFixed(2).replace('.',',')+'</span>';
-document.getElementById('total').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
-msg.innerHTML='<div class="cupom-sucesso">✅ Cupom '+cupom+' aplicado!</div>';
-gerarPix(); // Regera o PIX com novo valor
-}
-
+function copiarPix(){navigator.clipboard.writeText(pixCopiaCola);alert('Código PIX copiado!');}
 function mascaraCEP(i){let v = i.value.replace(/\D/g,'');if(v.length > 5) v = v.replace(/^(\d{5})(\d)/,'$1-$2');i.value = v;}
 function mascaraWhatsapp(i){let v = i.value.replace(/\D/g,'');v = v.replace(/^(\d{2})(\d)/g,"($1) $2");v = v.replace(/(\d)(\d{4})$/,"$1-$2");i.value = v;}
 function mascaraCPF(i){let v = i.value.replace(/\D/g,'');v = v.replace(/(\d{3})(\d)/,"$1.$2");v = v.replace(/(\d{3})(\d)/,"$1.$2");v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");i.value = v;}
