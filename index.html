@@ -24,6 +24,9 @@ h2{text-align:center}
 .cupom-erro{background:#ffebee;color:#c62828;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold}
 .resumo-row{display:flex;justify-content:space-between;margin:8px 0}
 .risco{text-decoration:line-through;color:#999}
+input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8px;box-sizing:border-box}
+input:focus{border-color:#2e7d32;outline:none}
+.loading{color:#2e7d32;font-size:12px}
 </style>
 </head>
 <body>
@@ -48,10 +51,15 @@ h2{text-align:center}
 <div id="etapa2" class="hidden">
 <h2>Dados de Entrega</h2>
 <div class="step-badge">Etapa 2 de 3</div>
-<input placeholder="Nome completo" id="nome" style="width:100%;padding:10px;margin:5px 0">
-<input placeholder="WhatsApp" id="whats" style="width:100%;padding:10px;margin:5px 0">
-<input placeholder="CEP" id="cep" style="width:100%;padding:10px;margin:5px 0">
-<input placeholder="Rua" id="rua" style="width:100%;padding:10px;margin:5px 0">
+<input placeholder="Nome completo" id="nome">
+<input placeholder="WhatsApp" id="whats" onkeyup="mascaraWhatsapp(this)">
+<input placeholder="CEP" id="cep" onblur="buscarCEP(this.value)" maxlength="9" onkeyup="mascaraCEP(this)">
+<div id="loading-cep" class="loading hidden">Buscando endereço...</div>
+<input placeholder="Rua" id="rua">
+<input placeholder="Número" id="numero">
+<input placeholder="Bairro" id="bairro">
+<input placeholder="Cidade" id="cidade">
+<input placeholder="Estado" id="estado" maxlength="2">
 <button class="btn btn-secondary" onclick="etapa1()">Voltar</button>
 <button class="btn" onclick="etapa3()">Continuar</button>
 </div>
@@ -70,11 +78,11 @@ h2{text-align:center}
 <div style="border:2px solid #ddd;padding:15px;border-radius:8px;margin:15px 0">
 <b>Tem cupom de desconto?</b>
 <div class="cupom-box">
-<input type="text" id="cupom" placeholder="Digite o cupom">
-<button class="btn-secondary" style="width:120px" onclick="aplicarCupom()">Aplicar</button>
+<input type="text" id="cupom" placeholder="Digite o cupom" style="margin:0">
+<button class="btn-secondary" style="width:120px;margin:0" onclick="aplicarCupom()">Aplicar</button>
 </div>
 <div id="msg-cupom"></div>
-<small style="color:#666">Teste: RETEC10 para 10% OFF</small>
+<small style="color:#666">Cupons: RETEC10 = 10% | RETEC50 = 50%</small>
 </div>
 
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX-RETEC" style="width:200px;display:block;margin:0 auto">
@@ -101,25 +109,58 @@ document.getElementById('etapa2').classList.add('hidden');
 document.getElementById('etapa3').classList.remove('hidden');
 document.getElementById('msg-cupom').innerHTML='';
 document.getElementById('desconto-row').style.display='none';
+document.getElementById('cupom').value='';
 }
 
 function aplicarCupom(){
 let cupom = document.getElementById('cupom').value.toUpperCase();
 let msg = document.getElementById('msg-cupom');
 let precoOriginal = p[s];
+let desconto = 0;
 
-if(cupom == 'RETEC10'){
-let desconto = precoOriginal * 0.10;
+if(cupom == 'RETEC10'){desconto = precoOriginal * 0.10;}
+else if(cupom == 'RETEC50'){desconto = precoOriginal * 0.50;}
+else{msg.innerHTML='<div class="cupom-erro">❌ Cupom inválido</div>';return;}
+
 precoFinal = precoOriginal - desconto;
 document.getElementById('desconto-row').style.display='flex';
 document.getElementById('desconto').innerText='- R$ '+desconto.toFixed(2).replace('.',',');
 document.getElementById('subtotal').innerHTML='<span class="risco">R$ '+precoOriginal.toFixed(2).replace('.',',')+'</span>';
 document.getElementById('total').innerText='R$ '+precoFinal.toFixed(2).replace('.',',');
-msg.innerHTML='<div class="cupom-sucesso">✅ Cupom RETEC10 aplicado! 10% de desconto</div>';
+msg.innerHTML='<div class="cupom-sucesso">✅ Cupom '+cupom+' aplicado! Desconto de R$ '+desconto.toFixed(2).replace('.',',')+'</div>';
 }
-else{
-msg.innerHTML='<div class="cupom-erro">❌ Cupom inválido</div>';
+
+function mascaraCEP(i){
+let v = i.value.replace(/\D/g,'');
+if(v.length > 5) v = v.replace(/^(\d{5})(\d)/,'$1-$2');
+i.value = v;
 }
+
+function mascaraWhatsapp(i){
+let v = i.value.replace(/\D/g,'');
+v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+i.value = v;
+}
+
+function buscarCEP(cep){
+cep = cep.replace(/\D/g, '');
+if(cep.length!= 8) return;
+document.getElementById('loading-cep').classList.remove('hidden');
+fetch(`https://viacep.com.br/ws/${cep}/json/`)
+.then(res => res.json())
+.then(data => {
+document.getElementById('loading-cep').classList.add('hidden');
+if(!data.erro){
+document.getElementById('rua').value = data.logradouro;
+document.getElementById('bairro').value = data.bairro;
+document.getElementById('cidade').value = data.localidade;
+document.getElementById('estado').value = data.uf;
+document.getElementById('numero').focus();
+}else{
+alert('CEP não encontrado');
+}
+});
 }
 </script>
 </body>
