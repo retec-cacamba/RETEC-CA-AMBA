@@ -58,15 +58,6 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 <div style="text-align:center"><span class="tag">🚚 FRETE GRÁTIS</span><span class="tag">⭐ 7 DIAS ALUGADO</span></div>
 <div class="step-badge">Etapa 1 de 3</div>
 
-<div style="border:2px dashed #2e7d32;padding:15px;border-radius:8px;margin:15px 0;background:#f1f8e9">
-<b>🎟️ Tem cupom de desconto?</b>
-<div class="cupom-box">
-<input type="text" id="cupom-etapa1" placeholder="Digite o cupom">
-<button class="btn-secondary" style="width:120px" onclick="aplicarCupom('etapa1')">Aplicar</button>
-</div>
-<div id="msg-cupom-etapa1"></div>
-</div>
-
 <div class="card" onclick="sel(0)" id="c0"><b>Caçamba 3m³ <span class="promo">PROMOCIONAL</span></b><span class="price" id="p0">R$ 200,00</span><p style="font-size:13px;color:#666">Ideal para pequenas reformas</p></div>
 <div class="card" onclick="sel(1)" id="c1"><b>Caçamba 4m³</b><span class="price" id="p1">R$ 269,99</span><p style="font-size:13px;color:#666">Ótima para reformas residenciais</p></div>
 <div class="card" onclick="sel(2)" id="c2"><b>Caçamba 5m³ <span class="promo" style="background:#2e7d32">PADRÃO</span></b><span class="price" id="p2">R$ 319,99</span><p style="font-size:13px;color:#666">Tamanho padrão</p></div>
@@ -79,7 +70,16 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 <div id="etapa2" class="hidden">
 <h2>Dados de Entrega</h2>
 <div class="step-badge">Etapa 2 de 3</div>
-<div id="cupom-info-etapa2" class="hidden" style="background:#e8f5e9;padding:10px;border-radius:8px;margin-bottom:10px"></div>
+
+<div style="border:2px dashed #2e7d32;padding:15px;border-radius:8px;margin:15px 0;background:#f1f8e9">
+<b>🎟️ Tem cupom de desconto?</b>
+<div class="cupom-box">
+<input type="text" id="cupom" placeholder="Digite o cupom">
+<button class="btn-secondary" style="width:120px" onclick="aplicarCupom()">Aplicar</button>
+</div>
+<div id="msg-cupom"></div>
+</div>
+
 <input placeholder="Nome completo" id="nome">
 <input placeholder="WhatsApp" id="whats" onkeyup="mascaraWhatsapp(this)">
 <input placeholder="CPF" id="cpf" onkeyup="mascaraCPF(this)">
@@ -98,20 +98,13 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 <h2>Pague com PIX</h2>
 <div class="step-badge">Etapa 3 de 3</div>
 
+<div id="cupom-info-etapa3" class="hidden" style="background:#e8f5e9;padding:10px;border-radius:8px;margin-bottom:10px"></div>
+
 <div class="resumo-row"><b>Caçamba:</b> <span id="res"></span></div>
 <div class="resumo-row"><b>Subtotal:</b> <span id="subtotal"></span></div>
 <div class="resumo-row" id="desconto-row" style="display:none"><b>Desconto:</b> <span id="desconto" style="color:#2e7d32"></span></div>
 <hr>
 <div class="resumo-row" style="font-size:20px"><b>Total:</b> <b id="total" style="color:#2e7d32"></b></div>
-
-<div style="border:2px solid #ddd;padding:15px;border-radius:8px;margin:15px 0">
-<b>Tem cupom de desconto?</b>
-<div class="cupom-box">
-<input type="text" id="cupom-etapa3" placeholder="Digite o cupom" style="margin:0">
-<button class="btn-secondary" style="width:120px;margin:0" onclick="aplicarCupom('etapa3')">Aplicar</button>
-</div>
-<div id="msg-cupom-etapa3"></div>
-</div>
 
 <div id="loading-pix" class="loading">Gerando PIX...</div>
 <img id="qr-pix" class="hidden">
@@ -123,7 +116,7 @@ input{width:100%;padding:12px;margin:5px 0;border:2px solid #ddd;border-radius:8
 
 </div>
 <script>
-const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b';
+const GREEN_PIX_TOKEN = 'pxd_04a8c5ea77334289a1d8bd3a18c5734b'; // SUA CHAVE API
 let p=[200,269.99,319.99,409.99,509.99,759.99];
 let n=["3m³","4m³","5m³","7m³","10m³","16m³"];
 let s=null;
@@ -142,7 +135,6 @@ document.getElementById('p'+i).innerHTML = '<span class="price-risco">R$ '+p[i].
 document.getElementById('p'+i).innerText = 'R$ '+p[i].toFixed(2).replace('.',',');
 }
 }
-}
 
 function sel(i){
 s=i;
@@ -159,10 +151,6 @@ if(s==null)return;
 fbq('track', 'InitiateCheckout', {value: precoFinal, currency: 'BRL'});
 document.getElementById('etapa1').classList.add('hidden');
 document.getElementById('etapa2').classList.remove('hidden');
-if(cupomAplicado!= ''){
-document.getElementById('cupom-info-etapa2').innerHTML = '✅ Cupom aplicado <span class="cupom-aplicado-tag">-'+(descontoPercent*100)+'%</span>';
-document.getElementById('cupom-info-etapa2').classList.remove('hidden');
-}
 }
 
 function etapa1(){
@@ -177,26 +165,23 @@ document.getElementById('total').innerText='R$ '+precoFinal.toFixed(2).replace('
 if(descontoPercent > 0){
 document.getElementById('desconto-row').style.display='flex';
 document.getElementById('desconto').innerText='- R$ '+(precoOriginal - precoFinal).toFixed(2).replace('.',',');
+document.getElementById('cupom-info-etapa3').innerHTML = '✅ Cupom aplicado <span class="cupom-aplicado-tag">-'+(descontoPercent*100)+'%</span>';
+document.getElementById('cupom-info-etapa3').classList.remove('hidden');
 }
 document.getElementById('etapa2').classList.add('hidden');
 document.getElementById('etapa3').classList.remove('hidden');
-document.getElementById('cupom-etapa3').value = cupomAplicado;
 await gerarPix();
 }
 
-function aplicarCupom(etapa){
-let cupomInput = etapa == 'etapa1'? 'cupom-etapa1' : 'cupom-etapa3';
-let msgInput = etapa == 'etapa1'? 'msg-cupom-etapa1' : 'msg-cupom-etapa3';
-let cupom = document.getElementById(cupomInput).value.toUpperCase();
-let msg = document.getElementById(msgInput);
+function aplicarCupom(){
+let cupom = document.getElementById('cupom').value.toUpperCase();
+let msg = document.getElementById('msg-cupom');
 
 if(cupom == 'RETEC10'){descontoPercent = 0.10; cupomAplicado = cupom;}
 else if(cupom == 'RETEC50'){descontoPercent = 0.50; cupomAplicado = cupom;}
 else{msg.innerHTML='<div class="cupom-erro">❌ Cupom inválido</div>'; return;}
 
 msg.innerHTML='<div class="cupom-sucesso">✅ Cupom aplicado! -'+(descontoPercent*100)+'%</div>';
-document.getElementById('cupom-etapa1').value = cupomAplicado;
-document.getElementById('cupom-etapa3').value = cupomAplicado;
 atualizarPrecos();
 if(s!= null){
 precoFinal = precoOriginal * (1 - descontoPercent);
@@ -232,6 +217,7 @@ document.getElementById('pix-copia-cola').classList.remove('hidden');
 fbq('track', 'Purchase', {value: precoFinal, currency: 'BRL', content_name: n[s]});
 
 }catch(e){
+console.log(e)
 document.getElementById('loading-pix').innerText = 'Erro ao gerar PIX. Tente novamente.';
 }
 }
