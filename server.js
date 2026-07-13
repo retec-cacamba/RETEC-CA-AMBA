@@ -4,17 +4,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
-
-// SERVE OS ARQUIVOS DA RAIZ - pq seu index.html tá solto
 app.use(express.static(__dirname));
 
-// ROTA PRA GERAR PIX PELA PIX.DIRECT
+// ROTA PRA GERAR PIX
 app.post('/gerar-pix', async (req, res) => {
   try {
-    const { valor } = req.body; // vem 100.00 do front
+    const { valor } = req.body;
 
     if (!valor) {
       return res.status(400).json({ erro: "Valor não informado" });
@@ -27,19 +24,30 @@ app.post('/gerar-pix', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        amount_cents: Math.round(valor * 100) // R$100.00 vira 10000
+        amount_cents: Math.round(valor * 100)
       })
     });
-
-    if (!response.ok) {
-      const erro = await response.json();
-      throw new Error(erro.error || "Erro ao gerar PIX");
-    }
 
     const data = await response.json();
     console.log("Resposta PIX:", data);
     
-    // FORÇA O FORMATO DA IMAGEM PRA APARECER
-    let qrBase64 = data.qr_code_base64;
-    if (!qrBase64.startsWith('data:image')) {
-      qrBase64 =
+    // A PIX.DIRECT JÁ MANDA COM data:image/png;base64,
+    // Então só repassa direto
+    res.json({ 
+      qr_code_image: data.qr_code_base64,  
+      copiaecola: data.pix_code          
+    });
+
+  } catch (error) {
+    console.log("Erro PIX:", error);
+    res.status(500).json({ erro: error.message });
+  }
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Rodando na porta ${PORT}`);
+});
