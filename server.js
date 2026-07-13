@@ -4,11 +4,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ROTA PRA GERAR PIX
+// ROTA PRA GERAR PIX PELA PIX.DIRECT
 app.post('/gerar-pix', async (req, res) => {
   try {
     const { valor } = req.body;
@@ -24,17 +25,21 @@ app.post('/gerar-pix', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        amount_cents: Math.round(valor * 100)
+        amount_cents: Math.round(valor * 100) // R$100.00 vira 10000
       })
     });
+
+    if (!response.ok) {
+      const erro = await response.json();
+      throw new Error(erro.error || "Erro ao gerar PIX");
+    }
 
     const data = await response.json();
     console.log("Resposta PIX:", data);
     
-    // A PIX.DIRECT JÁ MANDA COM data:image/png;base64,
-    // Então só repassa direto
+    // CORREÇÃO DO QR CODE: Força o formato completo pra imagem aparecer
     res.json({ 
-      qr_code_image: data.qr_code_base64,  
+      qr_code_image: "data:image/png;base64," + data.qr_code_base64,  
       copiaecola: data.pix_code          
     });
 
@@ -44,10 +49,12 @@ app.post('/gerar-pix', async (req, res) => {
   }
 });
 
+// MANDA O INDEX.HTML
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// INICIAR SERVIDOR
 app.listen(PORT, () => {
   console.log(`Rodando na porta ${PORT}`);
 });
