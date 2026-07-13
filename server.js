@@ -1,63 +1,90 @@
 const express = require('express');
+const axios = require('axios');
 const cors = require('cors');
-const path = require('path');
-const app = express();
-const PORT = process.env.PORT || 8080;
-const TAXA_PIX = 0.30; // taxa da pix.direct
+require('dotenv').config();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static('public')); // pra servir o index.html
 
+const PORT = process.env.PORT || 8080;
+const PIX_TOKEN = process.env.PIX_TOKEN; // coloca no Railway Variables
+const DESCONTO = 0.30;
+
+// BANCO TEMPORÁRIO - depois troca por DB de verdade
+let pagamentos = {};
+
+// 1. GERAR PIX
 app.post('/gerar-pix', async (req, res) => {
   try {
-    const { valor } = req.body;
-    if (!valor) return res.status(400).json({ error: "Valor não informado" });
+    const { valor, nome, cpf } = req.body;
+    
+    const valorComDesconto = (parseFloat(valor) - DESCONTO).toFixed(2);
+    const id = 'pix_' + Date.now();
 
-    // Subtrai a taxa pra render 100%
-    const valorComTaxa = Math.max(0.01, valor - TAXA_PIX);
-
-    const response = await fetch('https://pix.direct/v1/deposits', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + process.env.PIX_API_TOKEN,
-        'Content-Type': 'application/json'
+    const response = await axios.post(
+      'https://api.pix.direct/cobranca',
+      {
+        valor: valorComDesconto,
+        identificacao: id,
+        descricao: `Caçamba R$ ${valor}`
       },
-      body: JSON.stringify({ amount_cents: Math.round(valorComTaxa * 100) })
-    });
+      { headers: { 'Authorization': `Bearer ${PIX_TOKEN}` } }
+    );
 
-    const data = await response.json();
+    // Salva pra consultar depois
+    pagamentos[id] = {
+      status: 'PENDING',
+      valorOriginal: valor,
+      valorPago: valorComDesconto,
+      qr: response.data.qrCode,
+      copiaecola: response.data.copiaecola
+    };
 
     res.json({
-      qrCodeBase64: data.qr_code_base64.split(',')[1],
-      copiaecola: data.pix_code,
-      id: data.id
+      id: id,
+      qrCode: response.data.qrCode,
+      copiaecola: response.data.copiaecola,
+      valor: valorComDesconto
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(error.response?.data || error.message);
+    res.status(500).json({ erro: 'Erro ao gerar PIX' });
   }
 });
 
-// WEBHOOK - PRA SABER QUANDO PAGOU
-app.post('/webhook-pix', express.json(), async (req, res) => {
-  try {
-    const { id, status, amount_cents } = req.body;
-    console.log("WEBHOOK RECEBIDO:", req.body);
 
-    if(status === 'PAID' || status === 'paid'){
-      const valorPago = amount_cents / 100;
-      console.log(`PIX PAGO! ID: ${id} - Valor: R$ ${valorPago}`);
-    }
+// 2. WEBHOOK - AQUI QUE ATUALIZA PRA PAGO
+app.post('/webhook', express.json(), async (req, res) => {
+  console.log('WEBHOOK RECEBIDO:', req.body);
+  
+  const { status, identificacao, valor } = req.body;
+  
+  if(status === 'PAID' && pagamentos[identificacao]){
+    pagamentos[identificacao].status = 'PAID';
+    console.log(`PAGAMENTO CONFIRMADO: ${identificacao} - R$ ${valor}`);
+    
+    // AQUI VOCÊ PODE AVISAR NO TELEGRAM TAMBÉM
+    // await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {...})
+  }
+  
+  res.sendStatus(200); // pix.direct exige 200
+});
 
-    res.sendStatus(200);
-  } catch (error) {
-    res.sendStatus(500);
+
+// 3. CONSULTAR STATUS - pro site atualizar sozinho
+app.get('/status-pix/:id', (req, res) => {
+  const id = req.params.id;
+  if(pagamentos[id]){
+    res.json({ status: pagamentos[id].status });
+  } else {
+    res.status(404).json({ erro: 'PIX não encontrado' });
   }
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
 
-app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Rodando na porta ${PORT}`);
+});
