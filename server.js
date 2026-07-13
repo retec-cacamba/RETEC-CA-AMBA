@@ -1,90 +1,80 @@
 const express = require('express');
-const axios = require('axios');
 const cors = require('cors');
-require('dotenv').config();
-
+const path = require('path');
 const app = express();
+const PORT = process.env.PORT || 8080;
+const TAXA_PIX = 0.30; // taxa da pix.direct
+
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // pra servir o index.html
+app.use(express.static(__dirname));
 
-const PORT = process.env.PORT || 8080;
-const PIX_TOKEN = process.env.PIX_TOKEN; // coloca no Railway Variables
-const DESCONTO = 0.30;
-
-// BANCO TEMPORÁRIO - depois troca por DB de verdade
+// BANCO TEMPORÁRIO PRA SALVAR STATUS
 let pagamentos = {};
 
-// 1. GERAR PIX
 app.post('/gerar-pix', async (req, res) => {
   try {
-    const { valor, nome, cpf } = req.body;
-    
-    const valorComDesconto = (parseFloat(valor) - DESCONTO).toFixed(2);
+    const { valor } = req.body;
+    if (!valor) return res.status(400).json({ error: "Valor não informado" });
+
+    const valorComTaxa = Math.max(0.01, valor - TAXA_PIX);
     const id = 'pix_' + Date.now();
 
-    const response = await axios.post(
-      'https://api.pix.direct/cobranca',
-      {
-        valor: valorComDesconto,
-        identificacao: id,
-        descricao: `Caçamba R$ ${valor}`
+    const response = await fetch('https://pix.direct/v1/deposits', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + process.env.PIX_TOKEN, // MUDEI PRA PIX_TOKEN
+        'Content-Type': 'application/json'
       },
-      { headers: { 'Authorization': `Bearer ${PIX_TOKEN}` } }
-    );
+      body: JSON.stringify({ 
+        amount_cents: Math.round(valorComTaxa * 100),
+        id: id // manda o id pra voltar no webhook
+      })
+    });
+
+    const data = await response.json();
 
     // Salva pra consultar depois
-    pagamentos[id] = {
-      status: 'PENDING',
-      valorOriginal: valor,
-      valorPago: valorComDesconto,
-      qr: response.data.qrCode,
-      copiaecola: response.data.copiaecola
-    };
+    pagamentos[id] = { status: 'PENDING' };
 
     res.json({
-      id: id,
-      qrCode: response.data.qrCode,
-      copiaecola: response.data.copiaecola,
-      valor: valorComDesconto
+      qrCodeBase64: data.qr_code_base64.split(',')[1],
+      copiaecola: data.pix_code,
+      id: id
     });
 
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ erro: 'Erro ao gerar PIX' });
+    res.status(500).json({ error: error.message });
   }
 });
 
 
-// 2. WEBHOOK - AQUI QUE ATUALIZA PRA PAGO
+// MUDEI A ROTA PRA /webhook
 app.post('/webhook', express.json(), async (req, res) => {
-  console.log('WEBHOOK RECEBIDO:', req.body);
-  
-  const { status, identificacao, valor } = req.body;
-  
-  if(status === 'PAID' && pagamentos[identificacao]){
-    pagamentos[identificacao].status = 'PAID';
-    console.log(`PAGAMENTO CONFIRMADO: ${identificacao} - R$ ${valor}`);
-    
-    // AQUI VOCÊ PODE AVISAR NO TELEGRAM TAMBÉM
-    // await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {...})
+  try {
+    const { id, status, amount_cents } = req.body;
+    console.log("WEBHOOK RECEBIDO:", req.body);
+
+    if((status === 'PAID' || status === 'paid') && pagamentos[id]){
+      pagamentos[id].status = 'PAID'; // MARCA COMO PAGO
+      console.log(`PIX PAGO! ID: ${id}`);
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
   }
-  
-  res.sendStatus(200); // pix.direct exige 200
 });
 
-
-// 3. CONSULTAR STATUS - pro site atualizar sozinho
+// ROTA PRA CONSULTAR SE PAGOU
 app.get('/status-pix/:id', (req, res) => {
   const id = req.params.id;
-  if(pagamentos[id]){
-    res.json({ status: pagamentos[id].status });
-  } else {
-    res.status(404).json({ erro: 'PIX não encontrado' });
-  }
+  res.json({ status: pagamentos[id]?.status || 'NOT_FOUND' });
 });
 
 
-app.listen(PORT, () => {
-  console.log(`Rodando na porta ${PORT}`);
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
