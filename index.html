@@ -3,40 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento PIX - RETEC</title>
+  <title>RETEC - Pagamento PIX</title>
   <style>
-    body { font-family: Arial; text-align: center; padding: 20px; background: #f5f5f5; }
-    .box { background: white; padding: 30px; border-radius: 15px; max-width: 450px; margin: 50px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h1 { color: #00b67a; }
-    input, button { padding: 14px; font-size: 16px; margin: 10px; width: 90%; border-radius: 8px; border: 1px solid #ddd; }
-    button { background: #00b67a; color: white; border: none; cursor: pointer; font-weight: bold; }
-    button:hover { background: #009e68; }
-    #qr { margin-top: 20px; }
-    #qr img { width: 250px; height: 250px; border: 2px solid #00b67a; border-radius: 10px; margin: 15px 0; }
-    textarea { width: 90%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 12px; }
-    .loading { color: #00b67a; font-weight: bold; }
+    body {
+      background: #00b67a;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    h1 {
+      color: #00b67a;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 90%;
+      padding: 15px;
+      font-size: 18px;
+      border: 2px solid #00b67a;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    button {
+      width: 95%;
+      padding: 15px;
+      background: #00b67a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #009e68;
+    }
+    #resultado {
+      margin-top: 25px;
+    }
+    #resultado img {
+      width: 250px;
+      height: 250px;
+      margin: 10px 0;
+    }
+    #resultado textarea {
+      width: 90%;
+      height: 80px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>💚 Pagamento PIX RETEC</h1>
-    <p>Digite o valor da caçamba</p>
-    <input type="number" id="valor" placeholder="Ex: 150.00" step="0.01" />
+  <div class="container">
+    <h1>RETEC</h1>
+    <p>Pagamento via PIX</p>
+    
+    <input type="number" id="valor" placeholder="Digite o valor R$" step="0.01">
     <button onclick="gerarPix()">Gerar PIX</button>
-    <div id="qr"></div>
+
+    <div id="resultado"></div>
   </div>
 
   <script>
     async function gerarPix() {
       const valor = document.getElementById('valor').value;
-      const divQr = document.getElementById('qr');
+      const resultado = document.getElementById('resultado');
       
-      if(!valor || valor <= 0) { 
-        alert("Digite um valor válido!"); 
-        return; 
+      if(!valor || valor <= 0){
+        alert('Digite um valor válido');
+        return;
       }
 
-      divQr.innerHTML = '<p class="loading">Gerando PIX... aguarde</p>';
+      resultado.innerHTML = '<p>Gerando PIX...</p>';
 
       try {
         const res = await fetch('/gerar-pix', {
@@ -44,26 +101,25 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ valor: parseFloat(valor) })
         });
-        
+
         const data = await res.json();
-        
-        if(data.erro) {
-          alert("Erro: " + data.erro);
-          divQr.innerHTML = '';
+
+        if(data.erro){
+          alert('Erro: ' + data.erro);
+          resultado.innerHTML = '';
           return;
         }
 
-        divQr.innerHTML = `
+        resultado.innerHTML = `
           <h3>Escaneie o QR Code</h3>
-          <img src="${data.qr_code_image}" alt="QR Code PIX" />
-          <p><b>Ou copie o código:</b></p>
+          <img src="${data.qr_code_image}" />
+          <p><b>Ou copie e cole:</b></p>
           <textarea readonly onclick="this.select()">${data.copiaecola}</textarea>
-          <p style="font-size:12px;color:gray;">ID: ${data.id}</p>
         `;
 
       } catch (err) {
-        alert("Erro ao conectar: " + err.message);
-        divQr.innerHTML = '';
+        alert('Erro ao conectar: ' + err.message);
+        resultado.innerHTML = '';
       }
     }
   </script>
