@@ -4,19 +4,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Config
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ROTA PARA GERAR PIX
 app.post('/gerar-pix', async (req, res) => {
   try {
     const { valor } = req.body;
-
-    if (!valor || valor <= 0) {
-      return res.status(400).json({ erro: "Digite um valor válido" });
-    }
+    if (!valor) return res.status(400).json({ error: "Valor não informado" });
 
     const response = await fetch('https://pix.direct/v1/deposits', {
       method: 'POST',
@@ -24,38 +19,29 @@ app.post('/gerar-pix', async (req, res) => {
         'Authorization': 'Bearer ' + process.env.PIX_API_TOKEN,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ 
-        amount_cents: Math.round(valor * 100) // R$ 50.00 = 5000
-      })
+      body: JSON.stringify({ amount_cents: Math.round(valor * 100) })
     });
 
-    if (!response.ok) {
-      const erro = await response.json();
-      throw new Error(erro.error || "Erro ao gerar PIX");
+    const data = await response.json();
+    console.log("PIX.DIRECT:", data);
+
+    if(!response.ok){
+      return res.status(400).json({ error: data.error || "Erro ao gerar PIX" });
     }
 
-    const data = await response.json();
-    console.log("RESPOSTA PIX.DIRECT:", data);
-    
-    // IMPORTANTE: pix.direct já retorna com data:image/png;base64,
-    res.json({ 
-      qr_code_image: data.qr_code_base64,  
-      copiaecola: data.pix_code,
-      id: data.id
+    // ADAPTA PRA FORMATO DO SEU INDEX ANTIGO
+    res.json({
+      qrCodeBase64: data.qr_code_base64.split(',')[1], // tira o data:image/png;base64,
+      copiaecola: data.pix_code
     });
 
   } catch (error) {
-    console.error("ERRO:", error);
-    res.status(500).json({ erro: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// SERVE O INDEX.HTML
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// INICIAR
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
