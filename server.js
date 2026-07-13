@@ -4,18 +4,18 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middlewares
+// Config
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ROTA PRA GERAR PIX PELA PIX.DIRECT
+// ROTA PARA GERAR PIX
 app.post('/gerar-pix', async (req, res) => {
   try {
     const { valor } = req.body;
 
-    if (!valor) {
-      return res.status(400).json({ erro: "Valor não informado" });
+    if (!valor || valor <= 0) {
+      return res.status(400).json({ erro: "Digite um valor válido" });
     }
 
     const response = await fetch('https://pix.direct/v1/deposits', {
@@ -25,7 +25,7 @@ app.post('/gerar-pix', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        amount_cents: Math.round(valor * 100) // R$100.00 vira 10000
+        amount_cents: Math.round(valor * 100) // R$ 50.00 = 5000
       })
     });
 
@@ -35,26 +35,27 @@ app.post('/gerar-pix', async (req, res) => {
     }
 
     const data = await response.json();
-    console.log("Resposta PIX:", data);
+    console.log("RESPOSTA PIX.DIRECT:", data);
     
-    // CORREÇÃO DO QR CODE: Força o formato completo pra imagem aparecer
+    // IMPORTANTE: pix.direct já retorna com data:image/png;base64,
     res.json({ 
-      qr_code_image: "data:image/png;base64," + data.qr_code_base64,  
-      copiaecola: data.pix_code          
+      qr_code_image: data.qr_code_base64,  
+      copiaecola: data.pix_code,
+      id: data.id
     });
 
   } catch (error) {
-    console.log("Erro PIX:", error);
+    console.error("ERRO:", error);
     res.status(500).json({ erro: error.message });
   }
 });
 
-// MANDA O INDEX.HTML
+// SERVE O INDEX.HTML
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// INICIAR SERVIDOR
+// INICIAR
 app.listen(PORT, () => {
-  console.log(`Rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
