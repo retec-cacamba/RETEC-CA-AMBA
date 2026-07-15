@@ -26,8 +26,8 @@ body{background:#f0f2f5;padding:16px}
 .icon{width:50px;height:50px;background:#e3f2fd;color:#0d47a1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
 .info{flex:1}
 .info h3{font-size:16px;margin-bottom:2px}
-.info.promo{font-size:10px;background:#ff9800;color:white;padding:2px 6px;border-radius:8px;margin-left:5px}
-.info.padrao{font-size:10px;background:#2196f3;color:white;padding:2px 6px;border-radius:8px;margin-left:5px}
+.info .promo{font-size:10px;background:#ff9800;color:white;padding:2px 6px;border-radius:8px;margin-left:5px}
+.info .padrao{font-size:10px;background:#2196f3;color:white;padding:2px 6px;border-radius:8px;margin-left:5px}
 .info p{font-size:12px;color:#666}
 .price{color:#0d47a1;font-weight:800;font-size:18px;white-space:nowrap}
 .btn{width:100%;background:#0d47a1;color:white;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px}
@@ -45,10 +45,6 @@ body{background:#f0f2f5;padding:16px}
 .total{font-size:22px;color:#0d47a1;font-weight:800}
 .loading{text-align:center;color:#0d47a1;font-size:14px}
 .erro-box{background:#ffebee;border:1px solid #f44336;color:#c62828;padding:10px;border-radius:8px;font-size:12px;word-break:break-word}
-.pagamento-opcoes{display:flex;gap:10px;margin-bottom:15px}
-.pagamento-opcoes.item{flex:1;text-align:center;padding:16px}
-.pagamento-opcoes.item.active{background:#0d47a1;color:white}
-.pagamento-opcoes.item.active.icon{background:white;color:#0d47a1}
 </style>
 </head>
 <body>
@@ -116,7 +112,7 @@ body{background:#f0f2f5;padding:16px}
       <input class="input" id="bairro" placeholder="Bairro *">
       <input class="input" id="cidade" placeholder="Cidade *">
     </div>
-    <button class="btn" onclick="salvarLeadEIr(3)">Ir para Pagamento</button>
+    <button class="btn" onclick="go(3)">Ir para Pagamento</button>
     <button class="btn btn-gray" onclick="go(1)">Voltar</button>
   </div>
 </div>
@@ -129,38 +125,18 @@ body{background:#f0f2f5;padding:16px}
     <div class="step active">3. Pagamento</div>
   </div>
   <div class="box">
-    <h2>💳 Forma de Pagamento</h2>
-    <p style="background:#e8f5e9;padding:10px;border-radius:6px;font-size:13px;margin-bottom:15px">Total: <b id="total"></b></p>
-
-    <div class="pagamento-opcoes">
-      <div class="item active" onclick="escolherPagamento('pix', this)"><div class="icon">PIX</div><h3>PIX</h3><p>Aprovação imediata</p></div>
-      <div class="item" onclick="escolherPagamento('cartao', this)"><div class="icon">💳</div><h3>Cartão</h3><p>Até 12x</p></div>
-    </div>
-
-    <div id="box-pix">
-      <div class="qr" id="qrbox"><p class="loading">Gerando PIX...</p></div>
-      <input class="input" id="copia" readonly>
-      <button class="btn" onclick="copy()">Copiar Código PIX</button>
-    </div>
-
-    <div id="box-cartao" class="hidden">
-      <input class="input" id="numCartao" placeholder="Número do Cartão" maxlength="19" oninput="mascaraCartao(this)">
-      <div class="grid">
-        <input class="input" id="validade" placeholder="MM/AA" maxlength="5">
-        <input class="input" id="cvv" placeholder="CVV" maxlength="4">
-      </div>
-      <input class="input" id="nomeCartao" placeholder="Nome no Cartão">
-      <button class="btn" onclick="pagarCartao()">Pagar com Cartão</button>
-    </div>
-
-    <p style="text-align:center;margin-top:15px"><b>Total: <span id="total2"></span></b></p>
+    <h2>💳 Pagamento via PIX</h2>
+    <p style="background:#e8f5e9;padding:10px;border-radius:6px;font-size:13px;margin-bottom:15px">Finalize em 5 minutos para garantir sua reserva. Valor: <b id="valorPix"></b></p>
+    <div class="qr" id="qrbox"><p class="loading">Gerando PIX...</p></div>
+    <input class="input" id="copia" readonly>
+    <button class="btn" onclick="copy()">Copiar Código PIX</button>
+    <p style="text-align:center;margin-top:15px"><b>Total: <span id="total"></span></b></p>
     <button class="btn btn-gray" onclick="go(2)">Voltar</button>
   </div>
 </div>
 
 <script>
 let precoBase = 319.99, precoFinal = 319.99, produto = 'Caçamba 5m³';
-let formaPagamento = 'pix';
 
 window.onload = function(){
   document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2);
@@ -168,7 +144,7 @@ window.onload = function(){
 
 function pick(el, p, n){
   precoBase = p; precoFinal = p; produto = n;
-  document.querySelectorAll('#s1.item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
 }
 
@@ -183,38 +159,16 @@ function go(etapa){
   }
   if(etapa === 3){
     document.getElementById('total').innerText = 'R$ ' + precoFinal.toFixed(2);
-    document.getElementById('total2').innerText = 'R$ ' + precoFinal.toFixed(2);
-    escolherPagamento('pix', document.querySelector('.pagamento-opcoes.item'));
+    document.getElementById('valorPix').innerText = 'R$ ' + precoFinal.toFixed(2);
+    gerarPix();
   }
-}
-
-async function salvarLeadEIr(etapa){
-  const lead = {
-    nome: document.getElementById('nome').value,
-    whats: document.getElementById('whats').value,
-    cpf: document.getElementById('cpf').value,
-    email: document.getElementById('email').value,
-    cep: document.getElementById('cep').value,
-    rua: document.getElementById('rua').value,
-    num: document.getElementById('num').value,
-    bairro: document.getElementById('bairro').value,
-    cidade: document.getElementById('cidade').value,
-    produto: produto,
-    valor: precoFinal
-  }
-  await fetch('/salvar-lead', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(lead)
-  });
-  go(etapa);
 }
 
 function aplicarCupom(){
   let cupom = document.getElementById('cupom').value.toUpperCase(); let desconto = 0;
   if(cupom === 'RETEC10'){ desconto = precoBase * 0.10; document.getElementById('msgCupom').innerText = 'Cupom aplicado: -10%'; document.getElementById('msgCupom').style.color = '#2e7d32';
   } else if(cupom === 'RETEC50'){ desconto = precoBase * 0.50; document.getElementById('msgCupom').innerText = 'Cupom aplicado: -50%'; document.getElementById('msgCupom').style.color = '#2e7d32';
-  } else if(cupom!== ''){ precoFinal = precoBase; document.getElementById('precoOriginal').style.display = 'none'; document.getElementById('msgCupom').innerText = 'Cupom inválido'; document.getElementById('msgCupom').style.color = '#d32f2f'; document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2); return;
+  } else if(cupom !== ''){ precoFinal = precoBase; document.getElementById('precoOriginal').style.display = 'none'; document.getElementById('msgCupom').innerText = 'Cupom inválido'; document.getElementById('msgCupom').style.color = '#d32f2f'; document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2); return;
   } else { precoFinal = precoBase; document.getElementById('precoOriginal').style.display = 'none'; document.getElementById('msgCupom').innerText = ''; document.getElementById('precoFinal').innerText = 'R$ ' + precoFinal.toFixed(2); return; }
   precoFinal = precoBase - desconto;
   document.getElementById('precoOriginal').style.display = 'inline';
@@ -225,11 +179,10 @@ function aplicarCupom(){
 function mascaraCPF(input){ let v = input.value.replace(/\D/g, ''); v = v.replace(/(\d{3})(\d)/,"$1.$2"); v = v.replace(/(\d{3})(\d)/,"$1.$2"); v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2"); input.value = v; }
 function mascaraWhats(input){ let v = input.value.replace(/\D/g, ''); v = v.replace(/^(\d{2})(\d)/g,"($1) $2"); v = v.replace(/(\d)(\d{4})$/,"$1-$2"); input.value = v; }
 function mascaraCEP(input){ let v = input.value.replace(/\D/g, ''); v = v.replace(/^(\d{5})(\d)/,"$1-$2"); input.value = v; }
-function mascaraCartao(input){ let v = input.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim(); input.value = v; }
 
 async function buscarCEP(){
   let cep = document.getElementById('cep').value.replace(/\D/g, '');
-  if(cep.length!== 8) return;
+  if(cep.length !== 8) return;
   const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
   const data = await res.json();
   if(!data.erro){
@@ -239,30 +192,16 @@ async function buscarCEP(){
   }
 }
 
-function escolherPagamento(tipo, el){
-  formaPagamento = tipo;
-  document.querySelectorAll('.pagamento-opcoes.item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-  if(tipo === 'pix'){
-    document.getElementById('box-pix').classList.remove('hidden');
-    document.getElementById('box-cartao').classList.add('hidden');
-    gerarPix();
-  } else {
-    document.getElementById('box-pix').classList.add('hidden');
-    document.getElementById('box-cartao').classList.remove('hidden');
-  }
-}
-
 async function gerarPix(){
   const nome = document.getElementById('nome').value;
   let cpf = document.getElementById('cpf').value.replace(/\D/g,'');
-  if(!nome || cpf.length!== 11){ alert('Preencha nome e CPF corretamente'); go(2); return; }
+  if(!nome || cpf.length !== 11){ alert('Preencha nome e CPF corretamente'); go(2); return; }
   document.getElementById('qrbox').innerHTML = `<p class="loading">Gerando PIX...</p>`;
   try{
     const res = await fetch('/gerar-pix', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({valor: precoFinal})
+      body: JSON.stringify({valor: precoFinal, descricao: produto, nome: nome, cpf: cpf})
     });
     const data = await res.json();
     if(data.error){
@@ -276,31 +215,7 @@ async function gerarPix(){
   }
 }
 
-async function pagarCartao(){
-  const dadosCartao = {
-    numero: document.getElementById('numCartao').value.replace(/\D/g,''),
-    mes: document.getElementById('validade').value.split('/')[0],
-    ano: '20' + document.getElementById('validade').value.split('/')[1],
-    cvv: document.getElementById('cvv').value,
-    nome: document.getElementById('nomeCartao').value
-  }
-  const res = await fetch('/pagar-cartao', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      valor: precoFinal,
-      dadosCartao: dadosCartao,
-      nome: document.getElementById('nome').value,
-      cpf: document.getElementById('cpf').value,
-      email: document.getElementById('email').value
-    })
-  });
-  const data = await res.json();
-  if(data.status === 'approved'){ alert('Pagamento Aprovado!'); }
-  else{ alert('Pagamento Negado. Tente PIX.'); }
-}
-
 function copy(){navigator.clipboard.writeText(document.getElementById('copia').value);alert('Código copiado!')}
 </script>
 </body>
-  </html>
+        </html>
