@@ -1,8 +1,8 @@
 window.DISK_CONFIG = {
   companyName: "Disk Caçamba Curitiba",
   cnpj: "79.770.889/0001-46",
-  whatsapp: "5511926311240",
-  phoneDisplay: "(11) 92631-1240",
+  whatsapp: "5541987744919",
+  phoneDisplay: "(41) 98774-4919",
   checkoutUrl: "https://disk-cacamba-production.up.railway.app/",
   address: "Rua José Rodrigues Pinheiro, 2280 - Cidade Industrial de Curitiba, Curitiba - PR, 81170-200",
   serviceArea: "Curitiba e Região Metropolitana - PR",
