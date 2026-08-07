@@ -1,9 +1,9 @@
-# Disk Caçamba Curitiba
+# Disk Caçamba Curitiba — versão baseada no projeto V22 de São Paulo
 
-Landing page estática para campanha Google Ads em Curitiba e Região Metropolitana.
+Este projeto mantém o mesmo layout, imagens, navegação, seções, conversões, formulário, mão de obra, entrega expressa, mapa visual e experiência mobile/desktop do site de São Paulo, adaptados para Curitiba e Região Metropolitana.
 
-## Alterar WhatsApp
-Edite `config.js` e troque o número no formato internacional, somente números.
+## Atendimento destacado
+Curitiba, São José dos Pinhais, Colombo, Pinhais, Araucária, Campo Largo, Fazenda Rio Grande, Almirante Tamandaré e cidades selecionadas da região.
 
-## Publicação
-Pode ser publicada em hospedagem estática, Railway, Netlify, Vercel ou dentro de uma pasta `/curitiba` no domínio atual.
+## Configuração
+O telefone/WhatsApp está centralizado em `config.js`. A reserva online mantém o checkout já configurado no projeto original.
