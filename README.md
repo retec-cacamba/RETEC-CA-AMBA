@@ -1,9 +1,9 @@
-# Disk Caçamba Curitiba — versão baseada no projeto V22 de São Paulo
+# Disk Caçamba Curitiba
 
-Este projeto mantém o mesmo layout, imagens, navegação, seções, conversões, formulário, mão de obra, entrega expressa, mapa visual e experiência mobile/desktop do site de São Paulo, adaptados para Curitiba e Região Metropolitana.
+Landing page baseada no projeto de São Paulo, adaptada para Curitiba e Região Metropolitana.
 
-## Atendimento destacado
-Curitiba, São José dos Pinhais, Colombo, Pinhais, Araucária, Campo Largo, Fazenda Rio Grande, Almirante Tamandaré e cidades selecionadas da região.
-
-## Configuração
-O telefone/WhatsApp está centralizado em `config.js`. A reserva online mantém o checkout já configurado no projeto original.
+- Imagens e arquivos ficam todos na raiz, sem pasta assets.
+- CNPJ: 48.908.666/0001-79.
+- Endereço físico de Curitiba não foi preenchido porque o endereço anteriormente informado (Rua Professor Gabizo, 26 – Maracanã) não corresponde a Curitiba.
+- WhatsApp atual: (11) 92631-1240.
+- Antes de publicar, defina o domínio definitivo de Curitiba no sitemap/canonical se desejar.
